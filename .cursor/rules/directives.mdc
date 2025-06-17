@@ -1,0 +1,29 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+This project is a minimal webapp that expose the python cad library build123d in the browser with the compiled wasm ocp.
+
+The project is using :
+- Docker, everything is set up from a dockerfile
+- React for the front end
+- FastApi as the python server exposing the webapp
+- Typescript
+- Vite
+- Pyproject.toml
+- uv [https://docs.astral.sh/uv/]
+- python 3.13
+- Material components
+
+
+
+The app is composed of two main parts :
+- A code editor to allow the user to write build123d code.
+- A viewer (three-cad-viewer) which is a javascript viewer already packaged
+
+
+All the react components are written with the `function` keyword never arrow functions.
+
+
+Arrow functions are only used as callback within other functions
