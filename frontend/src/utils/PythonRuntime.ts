@@ -16,7 +16,6 @@ export class PythonRuntime {
         this.pyodide = null;
         this.isInitialized = false;
         this.statusManager = statusManager;
-
     }
     
     sendDataToJs(data: any, msg_type: string) {
@@ -57,16 +56,12 @@ export class PythonRuntime {
             this.isInitialized = true;
             this.statusManager.updateStatus('🚀 Python environment ready!');
 
-            // test
-            const testCode = `
+            // Set up the Python environment with the send_data_to_js function
+            const setupCode2 = `
             from show import send_data_to_js
-            send_data_to_js('Hello, world!')`;
-
-            const testShow = `
-            from ocp_vscode import show
-            from build123d import Box
-            show(Box(1,1,1))`;
-            this.runCode(testCode);
+            import builtins
+            builtins.send_data_to_js = send_data_to_js`;
+            await this.pyodide.runPythonAsync(setupCode2);
             
         } catch (error) {
             this.statusManager.updateStatus('❌ Failed to initialize Python environment: ' + error.message);

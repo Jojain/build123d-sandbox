@@ -5,16 +5,19 @@ import MonacoEditor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import { PythonRuntime } from "../utils/PythonRuntime.ts";
 
-function Editor(props: { value: string; onChange: (value: string) => void }) {
+function Editor(props: { 
+    value: string; 
+    onChange: (value: string) => void;
+    pythonRuntime: PythonRuntime;
+}) {
 	const [ready, setReady] = useState(false);
-	const [pythonRuntime, setPythonRuntime] = useState(new PythonRuntime());
 	const [isRunning, setIsRunning] = useState(false);
 
 	useEffect(() => {
-		pythonRuntime.initialize().then(() => {
+		props.pythonRuntime.initialize().then(() => {
 			setReady(true);
 		});
-	}, []);
+	}, [props.pythonRuntime]);
 
 	async function handleRunClick() {
 		if (!ready || isRunning) return;
@@ -22,7 +25,7 @@ function Editor(props: { value: string; onChange: (value: string) => void }) {
 		setIsRunning(true);
 		
 		try {
-			await pythonRuntime.runCode(props.value);
+			await props.pythonRuntime.runCode(props.value);
 		} catch (error) {
 			console.error('Error running Python code:', error);
 		} finally {
