@@ -7,7 +7,7 @@ import boxData from "./utils/boxData.ts";
 
 function App() {
     const [code, setCode] = React.useState("");
-    const [modelData, setModelData] = React.useState(boxData);
+    const [modelData, setModelData] = React.useState(JSON.stringify(boxData));
     const [renderKey, setRenderKey] = React.useState(0);
     const [pythonRuntime] = React.useState(() => {
         const runtime = new PythonRuntime();
@@ -33,6 +33,7 @@ function App() {
                 gap: 2,
                 p: 2,
                 boxSizing: "border-box",
+                overflow: "hidden",
             }}
         >
             <Box sx={{ flex: "0 0 40%", minWidth: 0, height: "100%" }}>

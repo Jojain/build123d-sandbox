@@ -334,12 +334,10 @@ function Viewer(props: ViewerProps) {
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
+                overflow: "hidden",
             }}
         >
-            <Typography variant="h6" gutterBottom>
-                Viewer
-            </Typography>
-            <Box sx={{ mt: 2, flex: 1, minHeight: 0 }}>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
                 <div
                     ref={viewerRef}
                     style={{

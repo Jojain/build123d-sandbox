@@ -1,6 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import MonacoEditor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import { PythonRuntime } from "../utils/PythonRuntime.ts";
@@ -34,30 +35,53 @@ function Editor(props: {
 	}
 
 	return (
-		<Box sx={{ p: 2, height: "100%" }}>
-			<Typography variant="h6" gutterBottom>
-				Editor
-			</Typography>
-			<button 
-				onClick={handleRunClick} 
-				disabled={!ready || isRunning} 
-				style={{marginTop: 8, marginBottom: 8}}
-			>
-				{isRunning ? "Running..." : "Run"}
-			</button>
-			
-			<MonacoEditor
-				height="100%"
-				language="python"
-				theme="vs-dark"
-				value={props.value}
-				onChange={(value) => props.onChange(value || "")}
-				options={{
-					minimap: { enabled: false },
-					fontSize: 14,
-					scrollBeyondLastLine: false,
+		<Box sx={{ 
+			p: 2, 
+			height: "100%", 
+			display: "flex", 
+			flexDirection: "column",
+			overflow: "hidden"
+		}}>
+			<Button
+				variant="contained"
+				color="primary"
+				onClick={handleRunClick}
+				disabled={!ready || isRunning}
+				sx={{
+					mb: 2,
+					minWidth: 120,
+					height: 40,
+					fontWeight: 'bold',
+					textTransform: 'none',
+					boxShadow: 2,
+					'&:hover': {
+						boxShadow: 4,
+					},
 				}}
-			/>
+			>
+				{isRunning ? "Running..." : "Run Code"}
+			</Button>
+			
+			<Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+				<MonacoEditor
+					height="100%"
+					language="python"
+					theme="vs-dark"
+					value={props.value}
+					onChange={(value) => props.onChange(value || "")}
+					options={{
+						minimap: { enabled: false },
+						fontSize: 14,
+						scrollBeyondLastLine: false,
+						scrollbar: {
+							vertical: 'visible',
+							horizontal: 'visible',
+							verticalScrollbarSize: 8,
+							horizontalScrollbarSize: 8,
+						},
+					}}
+				/>
+			</Box>
 		</Box>
 	);
 }
