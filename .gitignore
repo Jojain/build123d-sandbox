@@ -197,7 +197,6 @@ pids
 coverage/
 
 # Build output
-dist/
 build/
 
 # Dependency directories

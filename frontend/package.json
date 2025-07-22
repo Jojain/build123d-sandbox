@@ -1,5 +1,6 @@
 {
   "name": "frontend",
+  "homepage": "https://jojain.github.io/build123d-sandbox",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,13 +8,15 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/material": "^7.1.1",
     "@monaco-editor/react": "^4.6.0",
+    "@mui/material": "^7.1.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "three": "^0.177.0"
@@ -26,6 +29,7 @@
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "gh-pages": "^6.3.0",
     "globals": "^16.0.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
