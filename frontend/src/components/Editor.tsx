@@ -3,18 +3,31 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import MonacoEditor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
-import { initPyodideAndPackages, runPython } from "./pyodideRunner.ts";
+import { PythonRuntime } from "../utils/PythonRuntime.ts";
 
 function Editor(props: { value: string; onChange: (value: string) => void }) {
 	const [ready, setReady] = useState(false);
+	const [pythonRuntime, setPythonRuntime] = useState(new PythonRuntime());
+	const [isRunning, setIsRunning] = useState(false);
 
 	useEffect(() => {
-		initPyodideAndPackages().then(() => setReady(true));
+		pythonRuntime.initialize().then(() => {
+			setReady(true);
+		});
 	}, []);
 
 	async function handleRunClick() {
-		const result = await runPython(props.value);
-		alert(result); // Replace with your preferred UI feedback
+		if (!ready || isRunning) return;
+		
+		setIsRunning(true);
+		
+		try {
+			await pythonRuntime.runCode(props.value);
+		} catch (error) {
+			console.error('Error running Python code:', error);
+		} finally {
+			setIsRunning(false);
+		}
 	}
 
 	return (
@@ -22,9 +35,14 @@ function Editor(props: { value: string; onChange: (value: string) => void }) {
 			<Typography variant="h6" gutterBottom>
 				Editor
 			</Typography>
-			<button onClick={handleRunClick} disabled={!ready} style={{marginTop: 8}}>
-				Run
+			<button 
+				onClick={handleRunClick} 
+				disabled={!ready || isRunning} 
+				style={{marginTop: 8, marginBottom: 8}}
+			>
+				{isRunning ? "Running..." : "Run"}
 			</button>
+			
 			<MonacoEditor
 				height="100%"
 				language="python"
@@ -37,7 +55,6 @@ function Editor(props: { value: string; onChange: (value: string) => void }) {
 					scrollBeyondLastLine: false,
 				}}
 			/>
-
 		</Box>
 	);
 }

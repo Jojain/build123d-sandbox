@@ -4,7 +4,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useEffect } from "react";
-import  box  from "./boxData";
+import  box  from "../utils/boxData.js";
 
 function Viewer(props: any) {
     const viewerRef = React.useRef<HTMLDivElement>(null);
