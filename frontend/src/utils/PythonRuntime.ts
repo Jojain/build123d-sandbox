@@ -27,7 +27,9 @@ export class PythonRuntime {
      */
     private async loadPythonFile(filename: string): Promise<string> {
         try {
-            const response = await fetch(`/src/python/${filename}`);
+            // Use the correct base path for the current environment
+            const basePath = import.meta.env.BASE_URL || '/';
+            const response = await fetch(`${basePath}python/${filename}`);
             if (!response.ok) {
                 throw new Error(`Failed to load Python file: ${response.statusText}`);
             }
