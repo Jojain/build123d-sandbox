@@ -3,11 +3,14 @@ import Editor from "./components/Editor.tsx";
 import Viewer from "./components/Viewer.tsx";
 import Box from "@mui/material/Box";
 import { PythonRuntime } from "./utils/PythonRuntime.ts";
-import boxData from "./utils/boxData.ts";
 
 function App() {
-    const [code, setCode] = React.useState("");
-    const [modelData, setModelData] = React.useState(JSON.stringify(boxData));
+    const defaultCode = `from ocp_vscode import show
+from build123d import Box
+show(Box(1,1,1))`;
+
+    const [code, setCode] = React.useState(defaultCode);
+    const [modelData, setModelData] = React.useState();
     const [renderKey, setRenderKey] = React.useState(0);
     const [pythonRuntime] = React.useState(() => {
         const runtime = new PythonRuntime();
@@ -17,7 +20,7 @@ function App() {
             if (msg_type === "DATA") {
                 setModelData(data);
                 // Increment render key to force re-render
-                setRenderKey(prev => prev + 1);
+                setRenderKey((prev) => prev + 1);
             }
         };
         return runtime;
@@ -37,9 +40,9 @@ function App() {
             }}
         >
             <Box sx={{ flex: "0 0 40%", minWidth: 0, height: "100%" }}>
-                <Editor 
-                    value={code} 
-                    onChange={setCode} 
+                <Editor
+                    value={code}
+                    onChange={setCode}
                     pythonRuntime={pythonRuntime}
                 />
             </Box>
