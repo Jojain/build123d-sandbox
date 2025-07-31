@@ -1,43 +1,30 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import MonacoEditor from "@monaco-editor/react";
-import { useEffect, useRef, useState } from "react";
-import { PythonRuntime } from "../utils/PythonRuntime.ts";
+import { useState } from "react";
 
 function Editor(props: {
     value: string;
     onChange: (value: string) => void;
-    pythonRuntime: PythonRuntime;
+    isReady: boolean;
+    runCode: (code: string) => Promise<void>;
     onRunStateChange?: (isRunning: boolean) => void;
 }) {
-    const [ready, setReady] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
 
-    useEffect(() => {
-        props.pythonRuntime.initialize().then(() => {
-            setReady(true);
-        });
-    }, [props.pythonRuntime]);
-
     async function handleRunClick() {
-        if (!ready || isRunning) return;
+        if (!props.isReady || isRunning) return;
 
         setIsRunning(true);
         if (props.onRunStateChange) {
             props.onRunStateChange(true);
         }
 
-        try {
-            await props.pythonRuntime.runCode(props.value);
-        } catch (error) {
-            console.error("Error running Python code:", error);
-        } finally {
-            setIsRunning(false);
-            if (props.onRunStateChange) {
-                props.onRunStateChange(false);
-            }
+        await props.runCode(props.value);
+        setIsRunning(false);
+        if (props.onRunStateChange) {
+            props.onRunStateChange(false);
         }
     }
 
@@ -55,7 +42,7 @@ function Editor(props: {
                 variant="contained"
                 color="primary"
                 onClick={handleRunClick}
-                disabled={!ready || isRunning}
+                disabled={!props.isReady || isRunning}
                 sx={{
                     mb: 2,
                     minWidth: 120,

@@ -1,34 +1,43 @@
-
 interface StatusManager {
     updateStatus: (message: string) => void;
 }
 
-const statusManager = {updateStatus: (message) => {
-    console.log(message);
-}}
+const statusManager = {
+    updateStatus: (message) => {
+        console.log(message);
+    },
+};
 
 export class PythonRuntime {
     private pyodide: any;
     private isInitialized: boolean;
     private statusManager: StatusManager;
-    private onOutputChange?: (stdout: string, stderr: string) => void;
+    private onStdoutChange?: (stdout: string) => void;
+    private onStderrChange?: (stderr: string) => void;
 
     constructor() {
         this.pyodide = null;
         this.isInitialized = false;
         this.statusManager = statusManager;
     }
-    
-    setOutputCallback(callback: (stdout: string, stderr: string) => void) {
-        this.onOutputChange = callback;
+
+    setStdoutCallback(callback: (stdout: string) => void) {
+        this.onStdoutChange = callback;
     }
-    
+
+    setStderrCallback(callback: (stderr: string) => void) {
+        this.onStderrChange = callback;
+    }
+
     clearOutput() {
-        if (this.onOutputChange) {
-            this.onOutputChange('', '');
+        if (this.onStdoutChange) {
+            this.onStdoutChange("");
+        }
+        if (this.onStderrChange) {
+            this.onStderrChange("");
         }
     }
-    
+
     sendDataToJs(data: any, msg_type: string) {
         console.log("Sending data to JS:", data, msg_type);
     }
@@ -39,50 +48,59 @@ export class PythonRuntime {
     private async loadPythonFile(filename: string): Promise<string> {
         try {
             // Use the correct base path for the current environment
-            const basePath = import.meta.env.BASE_URL || '/';
+            const basePath = import.meta.env.BASE_URL || "/";
             const response = await fetch(`${basePath}python/${filename}`);
             if (!response.ok) {
-                throw new Error(`Failed to load Python file: ${response.statusText}`);
+                throw new Error(
+                    `Failed to load Python file: ${response.statusText}`
+                );
             }
             return await response.text();
         } catch (error) {
-            throw new Error(`Error loading Python file ${filename}: ${error.message}`);
+            throw new Error(
+                `Error loading Python file ${filename}: ${error.message}`
+            );
         }
     }
 
     async initialize() {
         try {
-            this.statusManager.updateStatus('🔄 Loading Python WebAssembly runtime...');
+            this.statusManager.updateStatus(
+                "🔄 Loading Python WebAssembly runtime..."
+            );
             // @ts-ignore
             this.pyodide = await loadPyodide();
-            await this.pyodide.loadPackage(['micropip']);
-            
+            await this.pyodide.loadPackage(["micropip"]);
+
             // Expose send_data_to_js function to Python
-            this.pyodide.registerJsModule('show', {send_data_to_js: this.sendDataToJs.bind(this)});
-            
+            this.pyodide.registerJsModule("show", {
+                send_data_to_js: this.sendDataToJs.bind(this),
+            });
+
             // Load and run the setup file
-            const setupCode = await this.loadPythonFile('setup.py');
+            const setupCode = await this.loadPythonFile("setup.py");
             await this.pyodide.runPythonAsync(setupCode);
-            
+
             // Set up stdout and stderr handlers with batched callbacks
             this.pyodide.setStdout({
                 batched: (text: string) => {
-                    if (this.onOutputChange) {
-                        this.onOutputChange(text, '');
+                    if (this.onStdoutChange) {
+                        this.onStdoutChange(text);
                     }
-                }
+                },
             });
-            
+
             this.pyodide.setStderr({
                 batched: (text: string) => {
-                    if (this.onOutputChange) {
-                        this.onOutputChange('', text);
+                    console.log("STDERR batched called with", text);
+                    if (this.onStderrChange) {
+                        this.onStderrChange(text);
                     }
-                }
+                },
             });
-            
+
             this.isInitialized = true;
-            this.statusManager.updateStatus('🚀 Python environment ready!');
+            this.statusManager.updateStatus("🚀 Python environment ready!");
 
             // Set up the Python environment with the send_data_to_js function
             const setupCode2 = `
@@ -90,57 +108,28 @@ export class PythonRuntime {
             import builtins
             builtins.send_data_to_js = send_data_to_js`;
             await this.pyodide.runPythonAsync(setupCode2);
-            
         } catch (error) {
-            this.statusManager.updateStatus('❌ Failed to initialize Python environment: ' + error.message);
+            this.statusManager.updateStatus(
+                "❌ Failed to initialize Python environment: " + error.message
+            );
         }
     }
 
     async runCode(code: string) {
         if (!this.isInitialized) {
-            throw new Error('Python environment is not ready yet');
+            throw new Error("Python environment is not ready yet");
         }
         try {
             // Clear previous output
-            this.clearOutput();
-            await this.pyodide.runPythonAsync(code);
+        this.clearOutput();
+        await this.pyodide.runPythonAsync(code);
         } catch (error) {
-            this.statusManager.updateStatus('❌ Failed to run code: ' + error.message);
+            if (this.onStderrChange) {  
+                this.onStderrChange(error.message);
+            }
+            this.statusManager.updateStatus(
+                "❌ Failed to run code: " + error.message
+            );
         }
     }
-
-    /**
-     * Load and run a Python file
-     */
-    async runPythonFile(filename: string) {
-        if (!this.isInitialized) {
-            throw new Error('Python environment is not ready yet');
-        }
-        try {
-            const pythonCode = await this.loadPythonFile(filename);
-            return await this.pyodide.runPythonAsync(pythonCode);
-        } catch (error) {
-            this.statusManager.updateStatus('❌ Failed to run Python file: ' + error.message);
-            throw error;
-        }
-    }
-
-    /**
-     * Process a viewer message through the Python viewer server
-     */
-    async processViewerMessage(message: string): Promise<string> {
-        if (!this.isInitialized) {
-            throw new Error('Python environment is not ready yet');
-        }
-        try {
-            return await this.pyodide.runPythonAsync(`process_viewer_message("${message}")`);
-        } catch (error) {
-            this.statusManager.updateStatus('❌ Failed to process viewer message: ' + error.message);
-            throw error;
-        }
-    }
-
-    isReady() {
-        return this.isInitialized;
-    }
-} 
+}

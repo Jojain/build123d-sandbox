@@ -2,17 +2,19 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 
 interface DraggableSeparatorProps {
-    onResize: (newLeftPercentage: number) => void;
-    currentLeftPercentage: number;
-    minLeftPercentage: number;
-    maxLeftPercentage: number;
+    onResize: (newPercentage: number) => void;
+    currentPercentage: number;
+    minPercentage: number;
+    maxPercentage: number;
+    orientation: "horizontal" | "vertical";
 }
 
 function DraggableSeparator({ 
     onResize, 
-    currentLeftPercentage, 
-    minLeftPercentage, 
-    maxLeftPercentage 
+    currentPercentage, 
+    minPercentage, 
+    maxPercentage,
+    orientation
 }: DraggableSeparatorProps) {
     const [isDragging, setIsDragging] = React.useState(false);
 
@@ -24,14 +26,16 @@ function DraggableSeparator({
     const handleMouseMove = React.useCallback((event: MouseEvent) => {
         if (!isDragging) return;
 
-        const containerWidth = window.innerWidth;
-        const newLeftPercentage = (event.clientX / containerWidth) * 100;
+        const isHorizontal = orientation === "horizontal";
+        const containerSize = isHorizontal ? window.innerWidth : window.innerHeight;
+        const clientPosition = isHorizontal ? event.clientX : event.clientY;
+        const newPercentage = (clientPosition / containerSize) * 100;
         
         // Clamp the value between min and max
-        const clampedPercentage = Math.max(minLeftPercentage, Math.min(maxLeftPercentage, newLeftPercentage));
+        const clampedPercentage = Math.max(minPercentage, Math.min(maxPercentage, newPercentage));
         
         onResize(clampedPercentage);
-    }, [isDragging, onResize, minLeftPercentage, maxLeftPercentage]);
+    }, [isDragging, onResize, minPercentage, maxPercentage, orientation]);
 
     const handleMouseUp = React.useCallback(() => {
         setIsDragging(false);
@@ -49,12 +53,20 @@ function DraggableSeparator({
         }
     }, [isDragging, handleMouseMove, handleMouseUp]);
 
+    const isHorizontal = orientation === "horizontal";
+    const cursor = isHorizontal ? 'col-resize' : 'row-resize';
+    const separatorWidth = isHorizontal ? '8px' : '100%';
+    const separatorHeight = isHorizontal ? '100%' : '8px';
+    const indicatorWidth = isHorizontal ? '2px' : '40px';
+    const indicatorHeight = isHorizontal ? '40px' : '2px';
+
     return (
         <Box
             sx={{
-                width: '8px',
+                width: separatorWidth,
+                height: separatorHeight,
                 backgroundColor: isDragging ? 'primary.main' : 'grey.300',
-                cursor: 'col-resize',
+                cursor: cursor,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -63,8 +75,8 @@ function DraggableSeparator({
                 },
                 '&::before': {
                     content: '""',
-                    width: '2px',
-                    height: '40px',
+                    width: indicatorWidth,
+                    height: indicatorHeight,
                     backgroundColor: isDragging ? 'white' : 'grey.500',
                     borderRadius: '1px',
                 },

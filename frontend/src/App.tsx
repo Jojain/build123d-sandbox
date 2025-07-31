@@ -4,7 +4,7 @@ import Viewer from "./components/Viewer.tsx";
 import PythonOutput from "./components/PythonOutput.tsx";
 import DraggableSeparator from "./components/DraggableSeparator.tsx";
 import Box from "@mui/material/Box";
-import { PythonRuntime } from "./utils/PythonRuntime.ts";
+import { usePythonRuntime } from "./utils/usePythonRuntime.ts";
 
 function App() {
     const defaultCode = `from ocp_vscode import show
@@ -12,40 +12,29 @@ from build123d import Box
 show(Box(1,1,1))`;
 
     const [code, setCode] = React.useState(defaultCode);
-    const [modelData, setModelData] = React.useState();
-    const [renderKey, setRenderKey] = React.useState(0);
-    const [stdout, setStdout] = React.useState("");
-    const [stderr, setStderr] = React.useState("");
-    const [isRunning, setIsRunning] = React.useState(false);
     const [leftPanelWidth, setLeftPanelWidth] = React.useState(35); // percentage
+    const [editorHeight, setEditorHeight] = React.useState(70); // percentage
 
-    const [pythonRuntime] = React.useState(() => {
-        const runtime = new PythonRuntime();
-        // Override the sendDataToJs method to update model data
-        runtime.sendDataToJs = (data: any, msg_type: string) => {
-            console.log("Received data from Python:", data, msg_type);
-            if (msg_type === "DATA") {
-                setModelData(data);
-                // Increment render key to force re-render
-                setRenderKey((prev) => prev + 1);
-            }
-        };
-
-        // Set up output callback to accumulate output
-        runtime.setOutputCallback((newStdout: string, newStderr: string) => {
-            setStdout(newStdout);
-            setStderr(newStderr);
-            console.log(newStdout, newStderr);
-        });
-
-        return runtime;
-    });
+    const {
+        modelData,
+        stdout,
+        stderr,
+        isRunning,
+        isReady,
+        runCode,
+        clearOutput,
+    } = usePythonRuntime();
 
     const handleResize = React.useCallback((newLeftPercentage: number) => {
         setLeftPanelWidth(newLeftPercentage);
     }, []);
 
-
+    const handleVerticalResize = React.useCallback(
+        (newEditorPercentage: number) => {
+            setEditorHeight(newEditorPercentage);
+        },
+        []
+    );
 
     return (
         <Box // Horizontal container
@@ -70,24 +59,53 @@ show(Box(1,1,1))`;
                     flexShrink: 0,
                 }}
             >
-                <Editor
-                    value={code}
-                    onChange={setCode}
-                    pythonRuntime={pythonRuntime}
-                    onRunStateChange={setIsRunning}
+                <Box // Editor container
+                    sx={{
+                        height: `${editorHeight}%`,
+                        minHeight: 0,
+                        flexShrink: 0,
+                    }}
+                >
+                    <Editor
+                        value={code}
+                        onChange={setCode}
+                        isReady={isReady}
+                        runCode={(code) => {
+                            clearOutput();
+                            return runCode(code);
+                        }}
+                    />
+                </Box>
+
+                <DraggableSeparator
+                    onResize={handleVerticalResize}
+                    currentPercentage={editorHeight}
+                    minPercentage={30}
+                    maxPercentage={90}
+                    orientation="vertical"
                 />
-                <PythonOutput
-                    stdout={stdout}
-                    stderr={stderr}
-                    isRunning={isRunning}
-                />
+
+                <Box // PythonOutput container
+                    sx={{
+                        height: `${100 - editorHeight}%`,
+                        minHeight: 0,
+                        flexShrink: 0,
+                    }}
+                >
+                    <PythonOutput
+                        stdout={stdout}
+                        stderr={stderr}
+                        isRunning={isRunning}
+                    />
+                </Box>
             </Box>
 
             <DraggableSeparator
                 onResize={handleResize}
-                currentLeftPercentage={leftPanelWidth}
-                minLeftPercentage={20}
-                maxLeftPercentage={80}
+                currentPercentage={leftPanelWidth}
+                minPercentage={20}
+                maxPercentage={80}
+                orientation="horizontal"
             />
 
             <Box // Viewer container
@@ -97,10 +115,7 @@ show(Box(1,1,1))`;
                     flexShrink: 0,
                 }}
             >
-                <Viewer 
-                    key={renderKey} 
-                    modelData={modelData} 
-                />
+                <Viewer modelData={modelData} />
             </Box>
         </Box>
     );
