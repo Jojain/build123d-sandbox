@@ -1,8 +1,0 @@
-[project]
-name = "build123d-sandbox"
-version = "0.1.0"
-dependencies = [
-    "fastapi",
-    "uvicorn",
-]
-requires-python = ">=3.13"

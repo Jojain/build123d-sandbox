@@ -1,43 +1,21 @@
-# build123d-sandbox
+# 🚀 build123d-sandbox
 
-A minimal webapp to expose the Python CAD library [build123d](https://github.com/gumyr/build123d) in the browser using a compiled wasm OCP backend.
+> **Interactive CAD Design in the Browser** - A powerful web-based sandbox for creating 3D models using Python and build123d, powered by WebAssembly
 
-## Features
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-brightgreen?style=for-the-badge)](https://jojain.github.io/build123d-sandbox/)
+[![Python](https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python)](https://python.org)
+[![React](https://img.shields.io/badge/React-19.1-61dafb?style=for-the-badge&logo=react)](https://reactjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?style=for-the-badge&logo=typescript)](https://typescriptlang.org)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green?style=for-the-badge)](LICENSE)
 
-- Code editor for writing build123d code
-- 3D viewer (three-cad-viewer)
-- FastAPI backend
-- React frontend (with Vite)
-- Dockerized setup
-- Python dependency management with `pyproject.toml` and [uv](https://docs.astral.sh/uv/)
-- Python 3.13+
+## ✨ Features
 
-## Project Structure
+- **Real-time 3D Modeling** - Write Python code and see your CAD models render instantly
+- **Interactive Code Editor** - Monaco Editor with syntax highlighting and autocomplete
+- **ocp_vscode support** - A forked version of [ocp_vscode](https://github.com/Jojain/vscode-ocp-cad-viewer/tree/no_pyperclip) allows you to simply paste your usual script in the editor and run it
 
-- `backend/` - FastAPI server and Python logic (see `pyproject.toml`)
-- `frontend/` - React app for the code editor and viewer (with Vite)
-- `Dockerfile` - Containerizes the app
 
-## Getting Started
 
-### Prerequisites
+## 🚀Live Demo
 
-- Docker
-
-### Build and Run
-
-```sh
-docker build -t build123d-sandbox .
-docker run -p 8000:8000 build123d-sandbox
-```
-
-Then open [http://localhost:8000](http://localhost:8000) in your browser.
-
-## Development
-
-- Backend: FastAPI (see `backend/`)
-- Frontend: React + Vite (see `frontend/`)
-- WASM OCP: Placeholder for now
-
-## License
-MIT
+Visit the live application: **[https://jojain.github.io/build123d-sandbox/](https://jojain.github.io/build123d-sandbox/)**
