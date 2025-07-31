@@ -11,11 +11,22 @@ export class PythonRuntime {
     private pyodide: any;
     private isInitialized: boolean;
     private statusManager: StatusManager;
+    private onOutputChange?: (stdout: string, stderr: string) => void;
 
     constructor() {
         this.pyodide = null;
         this.isInitialized = false;
         this.statusManager = statusManager;
+    }
+    
+    setOutputCallback(callback: (stdout: string, stderr: string) => void) {
+        this.onOutputChange = callback;
+    }
+    
+    clearOutput() {
+        if (this.onOutputChange) {
+            this.onOutputChange('', '');
+        }
     }
     
     sendDataToJs(data: any, msg_type: string) {
@@ -53,8 +64,23 @@ export class PythonRuntime {
             const setupCode = await this.loadPythonFile('setup.py');
             await this.pyodide.runPythonAsync(setupCode);
             
-            this.pyodide.setStdout();
-            this.pyodide.setStderr();
+            // Set up stdout and stderr handlers with batched callbacks
+            this.pyodide.setStdout({
+                batched: (text: string) => {
+                    if (this.onOutputChange) {
+                        this.onOutputChange(text, '');
+                    }
+                }
+            });
+            
+            this.pyodide.setStderr({
+                batched: (text: string) => {
+                    if (this.onOutputChange) {
+                        this.onOutputChange('', text);
+                    }
+                }
+            });
+            
             this.isInitialized = true;
             this.statusManager.updateStatus('🚀 Python environment ready!');
 
@@ -75,6 +101,8 @@ export class PythonRuntime {
             throw new Error('Python environment is not ready yet');
         }
         try {
+            // Clear previous output
+            this.clearOutput();
             await this.pyodide.runPythonAsync(code);
         } catch (error) {
             this.statusManager.updateStatus('❌ Failed to run code: ' + error.message);
