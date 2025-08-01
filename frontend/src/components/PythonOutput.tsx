@@ -28,18 +28,28 @@ function PythonOutput(props: PythonOutputProps) {
     // Function to render text with colored prompts
     const renderTextWithPrompts = (text: string, textColor: string) => {
         if (!text) return null;
-        
-        const lines = text.split('\n');
+
+        const lines = text.split("\n");
         return lines.map((line, index) => {
             if (line.trim()) {
                 return (
-                    <Box key={index} sx={{ whiteSpace: "pre", minWidth: "fit-content" }}>
+                    <Box
+                        key={index}
+                        sx={{ whiteSpace: "pre", minWidth: "fit-content" }}
+                    >
                         <span style={{ color: promptColor }}>{">>> "}</span>
                         <span style={{ color: textColor }}>{line}</span>
                     </Box>
                 );
             } else {
-                return <Box key={index} sx={{ whiteSpace: "pre", minWidth: "fit-content" }}>{line}</Box>;
+                return (
+                    <Box
+                        key={index}
+                        sx={{ whiteSpace: "pre", minWidth: "fit-content" }}
+                    >
+                        {line}
+                    </Box>
+                );
             }
         });
     };

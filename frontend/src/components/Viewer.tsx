@@ -99,18 +99,18 @@ function decode(data: any) {
                     if (obj.shape.ref === undefined) {
                         obj.shape.vertices = convert(obj.shape.vertices);
                         obj.shape.obj_vertices = convert(
-                            obj.shape.obj_vertices
+                            obj.shape.obj_vertices,
                         );
                         obj.shape.normals = convert(obj.shape.normals);
                         obj.shape.edge_types = convert(obj.shape.edge_types);
                         obj.shape.face_types = convert(obj.shape.face_types);
                         obj.shape.triangles = convert(obj.shape.triangles);
                         obj.shape.triangles_per_face = convert(
-                            obj.shape.triangles_per_face
+                            obj.shape.triangles_per_face,
                         );
                         obj.shape.edges = convert(obj.shape.edges);
                         obj.shape.segments_per_edge = convert(
-                            obj.shape.segments_per_edge
+                            obj.shape.segments_per_edge,
                         );
                     } else {
                         const ind = obj.shape.ref;
@@ -121,7 +121,7 @@ function decode(data: any) {
                 } else if (type === "edges") {
                     obj.shape.edges = convert(obj.shape.edges);
                     obj.shape.segments_per_edge = convert(
-                        obj.shape.segments_per_edge
+                        obj.shape.segments_per_edge,
                     );
                     obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                 } else {
@@ -241,13 +241,13 @@ function Viewer(props: ViewerProps) {
             // Create display
             displayInstanceRef.current = new TCV.Display(
                 viewerRef.current,
-                displayOptions
+                displayOptions,
             );
 
             viewerInstanceRef.current = new TCV.Viewer(
                 displayInstanceRef.current,
                 displayOptions,
-                () => {}
+                () => {},
             );
 
             // Set up display
@@ -307,7 +307,7 @@ function Viewer(props: ViewerProps) {
             viewerInstanceRef.current.render(
                 decodedData.data.shapes,
                 renderOptions,
-                viewerOptions
+                viewerOptions,
             );
             console.log("Model rendered successfully");
         } catch (error) {

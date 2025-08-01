@@ -15,11 +15,11 @@ function useInitialSize(ref: React.RefObject<HTMLElement | null>): Size {
 
         // Get the initial size
         const rect = element.getBoundingClientRect();
-        const initialSize = { 
-            width: rect.width, 
-            height: rect.height 
+        const initialSize = {
+            width: rect.width,
+            height: rect.height,
         };
-        
+
         setSize(initialSize);
         hasMeasured.current = true;
     }, [ref]);
@@ -27,4 +27,4 @@ function useInitialSize(ref: React.RefObject<HTMLElement | null>): Size {
     return size;
 }
 
-export default useInitialSize; 
+export default useInitialSize;

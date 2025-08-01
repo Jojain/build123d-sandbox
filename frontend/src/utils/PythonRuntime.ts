@@ -50,13 +50,13 @@ export class PythonRuntime {
             const response = await fetch(`${basePath}python/${filename}`);
             if (!response.ok) {
                 throw new Error(
-                    `Failed to load Python file: ${response.statusText}`
+                    `Failed to load Python file: ${response.statusText}`,
                 );
             }
             return await response.text();
         } catch (error) {
             throw new Error(
-                `Error loading Python file ${filename}: ${error.message}`
+                `Error loading Python file ${filename}: ${error.message}`,
             );
         }
     }
@@ -64,7 +64,7 @@ export class PythonRuntime {
     async initialize() {
         try {
             this.statusManager.updateStatus(
-                "🔄 Loading Python WebAssembly runtime..."
+                "🔄 Loading Python WebAssembly runtime...",
             );
             // @ts-ignore
             this.pyodide = await loadPyodide();
@@ -108,7 +108,7 @@ export class PythonRuntime {
             await this.pyodide.runPythonAsync(setupCode2);
         } catch (error) {
             this.statusManager.updateStatus(
-                "❌ Failed to initialize Python environment: " + error.message
+                "❌ Failed to initialize Python environment: " + error.message,
             );
         }
     }
@@ -119,14 +119,14 @@ export class PythonRuntime {
         }
         try {
             // Clear previous output
-        this.clearOutput();
-        await this.pyodide.runPythonAsync(code);
+            this.clearOutput();
+            await this.pyodide.runPythonAsync(code);
         } catch (error) {
-            if (this.onStderrChange) {  
+            if (this.onStderrChange) {
                 this.onStderrChange(error.message);
             }
             this.statusManager.updateStatus(
-                "❌ Failed to run code: " + error.message
+                "❌ Failed to run code: " + error.message,
             );
         }
     }

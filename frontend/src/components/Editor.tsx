@@ -21,7 +21,7 @@ function Editor(props: {
     const [isRunning, setIsRunning] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState(
-        "URL copied to clipboard!"
+        "URL copied to clipboard!",
     );
 
     async function handleRunClick() {
@@ -40,7 +40,7 @@ function Editor(props: {
         if (testUrl.toString().length > 6000) {
             // Show warning toast instead
             setToastMessage(
-                "Code too long for URL sharing. Consider shortening your code."
+                "Code too long for URL sharing. Consider shortening your code.",
             );
             setShowToast(true);
             return;

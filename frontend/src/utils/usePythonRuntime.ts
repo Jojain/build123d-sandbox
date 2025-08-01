@@ -78,7 +78,7 @@ export function usePythonRuntime(): UsePythonRuntimeReturn {
             await pythonRuntimeRef.current.runCode(code);
             setIsRunning(false);
         },
-        [isReady]
+        [isReady],
     );
 
     const clearOutput = useCallback(() => {

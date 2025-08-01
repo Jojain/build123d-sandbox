@@ -5,7 +5,9 @@ interface Size {
     height: number;
 }
 
-function useResizeObserver(onResize: (size: Size) => void): [React.RefObject<HTMLElement>, Size] {
+function useResizeObserver(
+    onResize: (size: Size) => void,
+): [React.RefObject<HTMLElement>, Size] {
     const elementRef = useRef<HTMLElement>(null);
     const [size, setSize] = useState<Size>({ width: 0, height: 0 });
 
@@ -18,7 +20,7 @@ function useResizeObserver(onResize: (size: Size) => void): [React.RefObject<HTM
                 const { width, height } = entry.contentRect;
                 const newSize = { width, height };
                 setSize(newSize);
-                
+
                 // Call the optional callback
                 if (onResize) {
                     onResize(newSize);
@@ -36,4 +38,4 @@ function useResizeObserver(onResize: (size: Size) => void): [React.RefObject<HTM
     return [elementRef as React.RefObject<HTMLElement>, size];
 }
 
-export default useResizeObserver; 
+export default useResizeObserver;
