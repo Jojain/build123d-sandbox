@@ -14,7 +14,7 @@ await micropip.install("ssl")
 print("ssl installed")
 
 print("Installing ocp_vscode from GitHub branch...")
-await micropip.install("https://jojain.github.io/vscode-ocp-cad-viewer/ocp_vscode-2.8.7-py3-none-any.whl")
+await micropip.install("https://jojain.github.io/vscode-ocp-cad-viewer/ocp_vscode-2.9.0-py3-none-any.whl")
 print("ocp_vscode from GitHub branch installed")
 
 micropip.add_mock_package("py-lib3mf", "2.4.1", modules={"py_lib3mf": '''from lib3mf import *'''}) # Only required for build123d<0.10.0
@@ -40,12 +40,3 @@ except ImportError as e:
     import sys
     print("Available packages:")
     print([pkg for pkg in sys.modules.keys() if 'build' in pkg.lower()])
-
-# Setup WebSocket communication
-print("Setting up WebSocket communication...")
-try:
-    from . import utils
-    utils.setup_ocp_vscode_show()
-    print("WebSocket communication setup completed")
-except Exception as e:
-    print(f"Failed to setup WebSocket communication: {e}")
