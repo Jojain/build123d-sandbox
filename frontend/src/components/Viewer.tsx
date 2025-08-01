@@ -269,52 +269,51 @@ function Viewer(props: ViewerProps) {
     }, [theme, treeWidth, glass, tools, up, control]);
 
     // Render model data
-    useEffect(() => {
-        if (viewerInstanceRef.current && modelData) {
-            // Parse the string into JSON first, then decode
-            let parsedData;
-            try {
-                // Remove the "D:" prefix that's always present
-                let jsonString = modelData;
-                if (modelData.startsWith("D:")) {
-                    jsonString = modelData.substring(3); // Remove "D:"
-                }
-                jsonString = jsonString.replace(/^D:/, "");
-                jsonString = "{" + jsonString;
-
-                parsedData = JSON.parse(jsonString);
-            } catch (error) {
-                console.error("Error parsing modelData JSON:", error);
-                console.error("modelData:", modelData);
-                return;
+    if (viewerInstanceRef.current && modelData) {
+        // Parse the string into JSON first, then decode
+        let parsedData;
+        try {
+            // Remove the "D:" prefix that's always present
+            let jsonString = modelData;
+            if (modelData.startsWith("D:")) {
+                jsonString = modelData.substring(3); // Remove "D:"
             }
+            jsonString = jsonString.replace(/^D:/, "");
+            jsonString = "{" + jsonString;
 
-            // Decode the model data
-            let decodedData = parsedData;
-            if (parsedData.data && parsedData.data.instances) {
-                decode(decodedData);
-            }
-
-            const viewerOptions = {
-                ...baseViewerOptions,
-                tools: tools,
-                glass: glass,
-                up: up,
-                control: control,
-            };
-
-            try {
-                viewerInstanceRef.current.render(
-                    decodedData.data.shapes,
-                    renderOptions,
-                    viewerOptions
-                );
-                console.log("Model rendered successfully");
-            } catch (error) {
-                console.error("Error rendering model:", error);
-            }
+            parsedData = JSON.parse(jsonString);
+        } catch (error) {
+            console.error("Error parsing modelData JSON:", error);
+            console.error("modelData:", modelData);
+            return;
         }
-    }, [modelData, tools, glass, up, control]);
+
+        // Decode the model data
+        let decodedData = parsedData;
+        if (parsedData.data && parsedData.data.instances) {
+            decode(decodedData);
+        }
+
+        const viewerOptions = {
+            ...baseViewerOptions,
+            tools: tools,
+            glass: glass,
+            up: up,
+            control: control,
+        };
+
+        try {
+            viewerInstanceRef.current.clear();
+            viewerInstanceRef.current.render(
+                decodedData.data.shapes,
+                renderOptions,
+                viewerOptions
+            );
+            console.log("Model rendered successfully");
+        } catch (error) {
+            console.error("Error rendering model:", error);
+        }
+    }
 
     return (
         <Box // Viewer container

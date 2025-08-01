@@ -5,36 +5,22 @@ import PythonOutput from "./components/PythonOutput.tsx";
 import DraggableSeparator from "./components/DraggableSeparator.tsx";
 import Box from "@mui/material/Box";
 import { usePythonRuntime } from "./utils/usePythonRuntime.ts";
+import { useState, useCallback } from "react";
 
 function App() {
-    const defaultCode = `from ocp_vscode import show
-from build123d import Box
-show(Box(1,1,1))`;
+    const [leftPanelWidth, setLeftPanelWidth] = useState(35); // percentage
+    const [editorHeight, setEditorHeight] = useState(70); // percentage
 
-    const [code, setCode] = React.useState(defaultCode);
-    const [leftPanelWidth, setLeftPanelWidth] = React.useState(35); // percentage
-    const [editorHeight, setEditorHeight] = React.useState(70); // percentage
+    const { modelData, stdout, stderr, isRunning, isReady, runCode } =
+        usePythonRuntime();
 
-    const {
-        modelData,
-        stdout,
-        stderr,
-        isRunning,
-        isReady,
-        runCode,
-        clearOutput,
-    } = usePythonRuntime();
-
-    const handleResize = React.useCallback((newLeftPercentage: number) => {
+    const handleResize = useCallback((newLeftPercentage: number) => {
         setLeftPanelWidth(newLeftPercentage);
     }, []);
 
-    const handleVerticalResize = React.useCallback(
-        (newEditorPercentage: number) => {
-            setEditorHeight(newEditorPercentage);
-        },
-        []
-    );
+    const handleVerticalResize = useCallback((newEditorPercentage: number) => {
+        setEditorHeight(newEditorPercentage);
+    }, []);
 
     return (
         <Box // Horizontal container
@@ -66,15 +52,7 @@ show(Box(1,1,1))`;
                         flexShrink: 0,
                     }}
                 >
-                    <Editor
-                        value={code}
-                        onChange={setCode}
-                        isReady={isReady}
-                        runCode={(code) => {
-                            clearOutput();
-                            return runCode(code);
-                        }}
-                    />
+                    <Editor isReady={isReady} runCode={runCode} />
                 </Box>
 
                 <DraggableSeparator

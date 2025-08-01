@@ -17,21 +17,16 @@ export function usePythonRuntime(): UsePythonRuntimeReturn {
     const [stderr, setStderr] = useState("");
     const [isRunning, setIsRunning] = useState(false);
     const [isReady, setIsInitialized] = useState(false);
-
     const pythonRuntimeRef = useRef<PythonRuntime | null>(null);
 
     // Initialize Python runtime
     useEffect(() => {
-        const runtime = new PythonRuntime();
-
-        // Override the sendDataToJs method to update model data
-        runtime.sendDataToJs = (data: any, msg_type: string) => {
-            console.log("Received data from Python:", data, msg_type);
+        const runtime = new PythonRuntime((data: any, msg_type: string) => {
             if (msg_type === "DATA") {
                 setModelData(data);
-                // Increment render key to force re-render
+                console.log("setting model data");
             }
-        };
+        });
 
         // Set up stdout callback to accumulate output
         runtime.setStdoutCallback((newStdout: string) => {
@@ -78,7 +73,7 @@ export function usePythonRuntime(): UsePythonRuntimeReturn {
             if (!pythonRuntimeRef.current || !isReady) {
                 throw new Error("Python runtime is not ready yet");
             }
-
+            clearOutput();
             setIsRunning(true);
             await pythonRuntimeRef.current.runCode(code);
             setIsRunning(false);

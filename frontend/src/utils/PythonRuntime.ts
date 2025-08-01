@@ -14,11 +14,13 @@ export class PythonRuntime {
     private statusManager: StatusManager;
     private onStdoutChange?: (stdout: string) => void;
     private onStderrChange?: (stderr: string) => void;
+    private sendDataToJs: (data: any, msg_type: string) => void;
 
-    constructor() {
+    constructor(sendDataToJs: (data: any, msg_type: string) => void) {
         this.pyodide = null;
         this.isInitialized = false;
         this.statusManager = statusManager;
+        this.sendDataToJs = sendDataToJs;
     }
 
     setStdoutCallback(callback: (stdout: string) => void) {
@@ -36,10 +38,6 @@ export class PythonRuntime {
         if (this.onStderrChange) {
             this.onStderrChange("");
         }
-    }
-
-    sendDataToJs(data: any, msg_type: string) {
-        console.log("Sending data to JS:", data, msg_type);
     }
 
     /**
