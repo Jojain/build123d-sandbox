@@ -10,8 +10,7 @@ import { useUrlCode } from "../utils/useUrlCode.ts";
 
 const defaultCode = `from ocp_vscode import show
 from build123d import *
-show(Box(1,1,1))
-#show(Sphere(1))`;
+show(Box(1,1,1))`;
 
 function Editor(props: {
     isReady: boolean;
