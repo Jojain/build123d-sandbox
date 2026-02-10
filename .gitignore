@@ -1,3 +1,6 @@
+# ignore npm dist folder
+frontend/dist/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -181,6 +184,7 @@ cython_debug/
 
 # Node modules
 node_modules/
+frontend/node_modules/
 
 # Logs
 logs
