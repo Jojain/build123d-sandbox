@@ -153,7 +153,7 @@ export async function updateUrlWithCode(code: string): Promise<void> {
 
 /**
  * Retrieves code from URL parameters (Async)
- * Checks 'gzcode' first, then 'code'
+ * Checks 'zc' first, then 'code'
  */
 export async function getCodeFromUrl(): Promise<string> {
     try {
