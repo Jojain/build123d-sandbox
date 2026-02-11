@@ -104,7 +104,8 @@ export async function decompressCodeDeflate(compressedCode: string): Promise<str
         }
 
         // 3. Deflate decompress
-        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));        const response = new Response(stream);
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+        const response = new Response(stream);
         return await response.text();
     } catch (error) {
         console.error("Error decompressing deflate code:", error);
