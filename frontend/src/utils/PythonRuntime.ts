@@ -101,10 +101,19 @@ export class PythonRuntime {
             this.statusManager.updateStatus("🚀 Python environment ready!");
 
             // Set up the Python environment with the send_data_to_js function
+            // And inject the brep_export helper function
             const setupCode2 = `
             from show import send_data_to_js
             import builtins
-            builtins.send_data_to_js = send_data_to_js`;
+            builtins.send_data_to_js = send_data_to_js
+            
+            def brep_export(to_export):
+                from io import BytesIO
+                from build123d import export_brep
+                brep = BytesIO()
+                export_brep(to_export, brep)
+                return brep
+            `;
             await this.pyodide.runPythonAsync(setupCode2);
         } catch (error) {
             this.statusManager.updateStatus(
@@ -129,5 +138,30 @@ export class PythonRuntime {
                 "❌ Failed to run code: " + error.message,
             );
         }
+    }
+
+    getExportedBytes(): Uint8Array | null {
+        if (!this.pyodide || !this.isInitialized) return null;
+        try {
+            const globals = this.pyodide.globals;
+            const toExport = globals.get("to_export");
+            
+            if (toExport) {
+                // If it's a BytesIO object, it has a getvalue method
+                if (toExport.getvalue) {
+                    const bytesProxy = toExport.getvalue();
+                    const bytes = bytesProxy.toJs();
+                    
+                    bytesProxy.destroy();
+                    toExport.destroy();
+                    
+                    return bytes;
+                }
+                toExport.destroy();
+            }
+        } catch (error) {
+            console.error("Error retrieving export:", error);
+        }
+        return null;
     }
 }

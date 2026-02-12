@@ -6,6 +6,7 @@ import { useState } from "react";
 import { updateUrlWithCode, compressCode } from "../utils/urlCodec.ts";
 import Toast from "./Toast.tsx";
 import ShareIcon from "@mui/icons-material/Share";
+import DownloadIcon from "@mui/icons-material/Download";
 import { useUrlCode } from "../utils/useUrlCode.ts";
 
 const defaultCode = `from ocp_vscode import show
@@ -15,6 +16,7 @@ show(Box(1,1,1))`;
 function Editor(props: {
     isReady: boolean;
     runCode: (code: string) => Promise<void>;
+    downloadExport: () => boolean;
 }) {
     const [code, setCode] = useUrlCode(defaultCode);
     const [isRunning, setIsRunning] = useState(false);
@@ -29,6 +31,14 @@ function Editor(props: {
         setIsRunning(true);
         await props.runCode(code);
         setIsRunning(false);
+    }
+
+    function handleDownloadClick() {
+        const success = props.downloadExport();
+        if (!success) {
+            setToastMessage("No 'to_export' variable found. Create one using to_export = brep_export(shape).");
+            setShowToast(true);
+        }
     }
 
     function handleShareClick() {
@@ -86,6 +96,26 @@ function Editor(props: {
                         }}
                     >
                         {isRunning ? "Running..." : "Run Code"}
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleDownloadClick}
+                        endIcon={<DownloadIcon />}
+                        disabled={!props.isReady}
+                        sx={{
+                            minWidth: 140,
+                            height: 40,
+                            fontWeight: "bold",
+                            textTransform: "none",
+                            boxShadow: 1,
+                            "&:hover": {
+                                boxShadow: 2,
+                            },
+                        }}
+                    >
+                        Download to_export
                     </Button>
 
                     <Button

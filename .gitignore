@@ -198,6 +198,9 @@ coverage/
 # Build output
 build/
 
+# ignore npm dist output folder
+dist/
+
 # Dependency directories
 jspm_packages/
 
