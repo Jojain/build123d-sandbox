@@ -1,6 +1,8 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Typography from "@mui/material/Typography";
 import MonacoEditor from "@monaco-editor/react";
 import { useState } from "react";
 import { updateUrlWithCode, compressCode } from "../utils/urlCodec.ts";
@@ -69,24 +71,56 @@ function Editor(props: {
                 }}
             >
                 <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleRunClick}
-                        disabled={!props.isReady || isRunning}
-                        sx={{
-                            flex: 1,
-                            height: 40,
-                            fontWeight: "bold",
-                            textTransform: "none",
-                            boxShadow: 2,
-                            "&:hover": {
-                                boxShadow: 4,
-                            },
-                        }}
-                    >
-                        {isRunning ? "Running..." : "Run Code"}
-                    </Button>
+                    {!props.isReady ? (
+                        <Box
+                            sx={{
+                                flex: 1,
+                                height: 40,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 1.5,
+                                borderRadius: 1,
+                                backgroundColor: "warning.main",
+                                color: "warning.contrastText",
+                                boxShadow: 2,
+                            }}
+                        >
+                            <CircularProgress
+                                size={20}
+                                sx={{ color: "warning.contrastText" }}
+                            />
+                            <Typography
+                                sx={{
+                                    fontWeight: "bold",
+                                    fontSize: "0.875rem",
+                                    letterSpacing: "0.02857em",
+                                    lineHeight: 1.75,
+                                }}
+                            >
+                                Loading Python environment…
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleRunClick}
+                            disabled={isRunning}
+                            sx={{
+                                flex: 1,
+                                height: 40,
+                                fontWeight: "bold",
+                                textTransform: "none",
+                                boxShadow: 2,
+                                "&:hover": {
+                                    boxShadow: 4,
+                                },
+                            }}
+                        >
+                            {isRunning ? "Running..." : "Run Code"}
+                        </Button>
+                    )}
 
                     <Button
                         variant="contained"
