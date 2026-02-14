@@ -197,6 +197,7 @@ coverage/
 
 # Build output
 build/
+dist/
 
 # Dependency directories
 jspm_packages/
