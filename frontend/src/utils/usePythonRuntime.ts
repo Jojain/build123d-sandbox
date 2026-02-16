@@ -8,6 +8,7 @@ interface UsePythonRuntimeReturn {
     isRunning: boolean;
     isReady: boolean;
     runCode: (code: string) => Promise<void>;
+    downloadExport: (format: string) => Promise<boolean>;
     clearOutput: () => void;
 }
 
@@ -81,6 +82,25 @@ export function usePythonRuntime(): UsePythonRuntimeReturn {
         [isReady],
     );
 
+    const downloadExport = useCallback(async (format: string) => {
+        if (!pythonRuntimeRef.current) return false;
+        
+        const bytes = await pythonRuntimeRef.current.exportShape(format);
+        if (bytes) {
+            const blob = new Blob([bytes], { type: "application/octet-stream" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `model.${format.toLowerCase()}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            return true;
+        }
+        return false;
+    }, []);
+
     const clearOutput = useCallback(() => {
         setStdout("");
         setStderr("");
@@ -96,6 +116,7 @@ export function usePythonRuntime(): UsePythonRuntimeReturn {
         isRunning,
         isReady,
         runCode,
+        downloadExport,
         clearOutput,
     };
 }

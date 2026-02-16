@@ -11,7 +11,7 @@ function App() {
     const [leftPanelWidth, setLeftPanelWidth] = useState(35); // percentage
     const [editorHeight, setEditorHeight] = useState(70); // percentage
 
-    const { modelData, stdout, stderr, isRunning, isReady, runCode } =
+    const { modelData, stdout, stderr, isRunning, isReady, runCode, downloadExport } =
         usePythonRuntime();
 
     const handleResize = useCallback((newLeftPercentage: number) => {
@@ -52,7 +52,11 @@ function App() {
                         flexShrink: 0,
                     }}
                 >
-                    <Editor isReady={isReady} runCode={runCode} />
+                    <Editor 
+                        isReady={isReady} 
+                        runCode={runCode} 
+                        downloadExport={downloadExport} 
+                    />
                 </Box>
 
                 <DraggableSeparator
