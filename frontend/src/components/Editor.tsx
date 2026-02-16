@@ -4,6 +4,9 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import MonacoEditor from "@monaco-editor/react";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useState } from "react";
 import { updateUrlWithCode, compressCode } from "../utils/urlCodec.ts";
 import Toast from "./Toast.tsx";
@@ -13,16 +16,26 @@ import { useUrlCode } from "../utils/useUrlCode.ts";
 
 const defaultCode = `from ocp_vscode import show
 from build123d import *
-show(Box(1,1,1))`;
+
+# Create a shape
+b = Box(1,1,1)
+show(b)
+
+# To export, assign your shape to __EXPORT__
+# 1. Run the code
+# 2. Select the format in the dropdown 
+# 3. Click Download
+__EXPORT__ = b`;
 
 function Editor(props: {
     isReady: boolean;
     runCode: (code: string) => Promise<void>;
-    downloadExport: () => boolean;
+    downloadExport: (format: string) => Promise<boolean>;
 }) {
     const [code, setCode] = useUrlCode(defaultCode);
     const [isRunning, setIsRunning] = useState(false);
     const [showToast, setShowToast] = useState(false);
+    const [exportFormat, setExportFormat] = useState("BREP");
     const [toastMessage, setToastMessage] = useState(
         "URL copied to clipboard!",
     );
@@ -35,13 +48,17 @@ function Editor(props: {
         setIsRunning(false);
     }
 
-    function handleDownloadClick() {
-        const success = props.downloadExport();
+    async function handleDownloadClick() {
+        const success = await props.downloadExport(exportFormat);
         if (!success) {
-            setToastMessage("No 'to_export' variable found. Create one using to_export = brep_export(shape).");
+            setToastMessage("Export failed. Ensure '__EXPORT__' variable is set and you have clicked 'Run Code'.");
             setShowToast(true);
         }
     }
+
+    const handleFormatChange = (event: SelectChangeEvent) => {
+        setExportFormat(event.target.value as string);
+    };
 
     function handleShareClick() {
         const compressedCode = compressCode(code);
@@ -132,25 +149,49 @@ function Editor(props: {
                         </Button>
                     )}
 
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={handleDownloadClick}
-                        endIcon={<DownloadIcon />}
-                        disabled={!props.isReady}
-                        sx={{
-                            minWidth: 140,
-                            height: 40,
-                            fontWeight: "bold",
-                            textTransform: "none",
-                            boxShadow: 1,
-                            "&:hover": {
-                                boxShadow: 2,
-                            },
-                        }}
-                    >
-                        Download to_export
-                    </Button>
+                    <Box sx={{ display: "flex", gap: 0, bgcolor: "white", borderRadius: 1 }}>
+                         <FormControl size="small" sx={{ minWidth: 80 }}>
+                            <Select
+                                value={exportFormat}
+                                onChange={handleFormatChange}
+                                displayEmpty
+                                inputProps={{ 'aria-label': 'Export Format' }}
+                                sx={{ 
+                                    height: 40, 
+                                    borderTopRightRadius: 0,
+                                    borderBottomRightRadius: 0,
+                                }}
+                            >
+                                <MenuItem value="BREP">BREP</MenuItem>
+                                <MenuItem value="STL" disabled>STL</MenuItem>
+                                <MenuItem value="STEP" disabled>STEP</MenuItem>
+                                <MenuItem value="SVG" disabled>SVG</MenuItem>
+                                <MenuItem value="DXF" disabled>DXF</MenuItem>
+                                <MenuItem value="3MF" disabled>3MF</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={handleDownloadClick}
+                            endIcon={<DownloadIcon />}
+                            disabled={!props.isReady}
+                            sx={{
+                                minWidth: 100,
+                                height: 40,
+                                fontWeight: "bold",
+                                textTransform: "none",
+                                borderTopLeftRadius: 0,
+                                borderBottomLeftRadius: 0,
+                                boxShadow: 1,
+                                "&:hover": {
+                                    boxShadow: 2,
+                                },
+                            }}
+                        >
+                            Download
+                        </Button>
+                    </Box>
 
                     <Button
                         variant="contained"
