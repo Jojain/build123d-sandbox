@@ -118,6 +118,9 @@ export class PythonRuntime {
                     return None
                 
                 shape = globals()["__EXPORT__"]
+                if not isinstance(shape, b3d.Shape):
+                    print(f"Export error for {shape}: Only shape instances can be exported")
+                    return None
                 bio = io.BytesIO()
                 
                 try:
