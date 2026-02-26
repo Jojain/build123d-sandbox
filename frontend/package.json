@@ -22,7 +22,8 @@
     "npm": "^11.9.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "three": "^0.177.0"
+    "three": "^0.177.0",
+    "three-cad-viewer": "^4.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

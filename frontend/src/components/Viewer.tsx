@@ -1,36 +1,14 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import { useCallback, useEffect, useRef } from "react";
-import * as TCV from "../assets/three-cad-viewer.esm.js";
-import "../assets/three-cad-viewer.css";
+import * as TCV from "three-cad-viewer";
 import useResizeObserver from "../utils/useResizeObserver";
-import useInitialSize from "../utils/useInitialSize.js";
 
 // Helper functions for decoding model data
 const MAP_HEX = {
-    0: 0,
-    1: 1,
-    2: 2,
-    3: 3,
-    4: 4,
-    5: 5,
-    6: 6,
-    7: 7,
-    8: 8,
-    9: 9,
-    a: 10,
-    b: 11,
-    c: 12,
-    d: 13,
-    e: 14,
-    f: 15,
-    A: 10,
-    B: 11,
-    C: 12,
-    D: 13,
-    E: 14,
-    F: 15,
+    0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9,
+    a: 10, b: 11, c: 12, d: 13, e: 14, f: 15,
+    A: 10, B: 11, C: 12, D: 13, E: 14, F: 15,
 };
 
 function fromHex(hexString: string) {
@@ -98,20 +76,14 @@ function decode(data: any) {
                 if (type === "shapes") {
                     if (obj.shape.ref === undefined) {
                         obj.shape.vertices = convert(obj.shape.vertices);
-                        obj.shape.obj_vertices = convert(
-                            obj.shape.obj_vertices,
-                        );
+                        obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                         obj.shape.normals = convert(obj.shape.normals);
                         obj.shape.edge_types = convert(obj.shape.edge_types);
                         obj.shape.face_types = convert(obj.shape.face_types);
                         obj.shape.triangles = convert(obj.shape.triangles);
-                        obj.shape.triangles_per_face = convert(
-                            obj.shape.triangles_per_face,
-                        );
+                        obj.shape.triangles_per_face = convert(obj.shape.triangles_per_face);
                         obj.shape.edges = convert(obj.shape.edges);
-                        obj.shape.segments_per_edge = convert(
-                            obj.shape.segments_per_edge,
-                        );
+                        obj.shape.segments_per_edge = convert(obj.shape.segments_per_edge);
                     } else {
                         const ind = obj.shape.ref;
                         if (ind !== undefined) {
@@ -120,9 +92,7 @@ function decode(data: any) {
                     }
                 } else if (type === "edges") {
                     obj.shape.edges = convert(obj.shape.edges);
-                    obj.shape.segments_per_edge = convert(
-                        obj.shape.segments_per_edge,
-                    );
+                    obj.shape.segments_per_edge = convert(obj.shape.segments_per_edge);
                     obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                 } else {
                     obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
@@ -146,7 +116,6 @@ function decode(data: any) {
     });
 
     walk(data.data.shapes);
-
     data.data.instances = [];
 }
 
@@ -160,14 +129,14 @@ const renderOptions = {
     normalLen: 0,
     angularTolerance: 0.2,
     deviation: 0.1,
-    defaultColor: "#e8b024",
+    defaultColor: "#e8b024"
 };
 
 const baseViewerOptions = {
     axes: true,
-    axes0: false,
+    axes0: true,
     blackEdges: false,
-    grid: [false, false, false],
+    grid: [false, false, false] as [boolean, boolean, boolean],
     collapse: false,
     ortho: true,
     ticks: 10,
@@ -180,9 +149,9 @@ const baseViewerOptions = {
     clipSlider0: 0,
     clipSlider1: 0,
     clipSlider2: 0,
-    clipNormal0: [1, 0, 0],
-    clipNormal1: [0, 1, 0],
-    clipNormal2: [0, 0, 1],
+    clipNormal0: [1, 0, 0] as [number, number, number],
+    clipNormal1: [0, 1, 0] as [number, number, number],
+    clipNormal2: [0, 0, 1] as [number, number, number],
     clipIntersection: false,
     clipPlaneHelpers: false,
     clipObjectColors: false,
@@ -192,10 +161,10 @@ interface ViewerProps {
     modelData?: string;
     theme?: "light" | "dark";
     treeWidth?: number;
-    glass?: boolean;
     tools?: boolean;
-    up?: string;
+    up?: "Z" | "Y" | "legacy";
     control?: "trackball" | "orbit";
+    glass?: boolean;
 }
 
 function Viewer(props: ViewerProps) {
@@ -206,28 +175,37 @@ function Viewer(props: ViewerProps) {
         modelData,
         theme = "light",
         treeWidth = 240,
-        glass = false,
         tools = true,
         up = "Z",
         control = "trackball",
+        glass = true
     } = props;
 
-    const onResize = useCallback((size: { width: number; height: number }) => {
-        const width = size.width - treeWidth - 30;
-        const height = size.height - 60;
-        viewerInstanceRef.current.resizeCadView(width, treeWidth, height);
-    }, []);
+    const onResize = useCallback((size: { width: number; height: number}) => {
+        if (viewerInstanceRef.current) {
+            const width = glass ? size.width - 20 : Math.max(10, size.width - treeWidth);
+            const height = size.height - 55; 
+            viewerInstanceRef.current.resizeCadView(width, treeWidth, height, glass);
+        }
+    }, [treeWidth, glass]);
 
-    const [viewerRef, containerSize] = useResizeObserver(onResize);
+    const [viewerRef] = useResizeObserver(onResize);
 
     // Initialize viewer with actual container size
     useEffect(() => {
         if (viewerRef.current && !viewerInstanceRef.current) {
-            const displayOptions = {
+            
+            const combinedOptions: any = {
+                // Render & Viewer Options
+                ...baseViewerOptions,
+                ...renderOptions,
+                up: up,
+                control: control,
+
+                // Display Options
                 cadWidth: 800,
                 height: 600,
                 treeWidth: treeWidth,
-                glass: glass,
                 theme: theme,
                 tools: tools,
                 pinning: false,
@@ -235,94 +213,108 @@ function Viewer(props: ViewerProps) {
                     shift: "shiftKey",
                     ctrl: "ctrlKey",
                     meta: "metaKey",
+                    alt: "altKey"
                 },
+                newTreeBehavior: true,
+                measurementDebug: false,
+                
+                glass: glass,
+                measureTools: false,
+                explodeTool: false,
+                selectTool: false,
+                zscaleTool: false,
+                zebraTool: true, 
             };
 
             // Create display
             displayInstanceRef.current = new TCV.Display(
                 viewerRef.current,
-                displayOptions,
+                combinedOptions,
             );
 
+            // Pass the exact same combined configuration to the Viewer 
             viewerInstanceRef.current = new TCV.Viewer(
                 displayInstanceRef.current,
-                displayOptions,
+                combinedOptions,
                 () => {},
             );
 
-            // Set up display
-            displayInstanceRef.current.glassMode(displayOptions.glass);
-            displayInstanceRef.current.showTools(displayOptions.tools);
+            // Force layout styles to match
+            displayInstanceRef.current.glassMode(glass); 
+            displayInstanceRef.current.showTools(tools);
+            displayInstanceRef.current.setTheme(theme);
         }
 
         return () => {
-            // Cleanup
             if (viewerInstanceRef.current) {
                 viewerInstanceRef.current.hasAnimationLoop = false;
                 viewerInstanceRef.current.continueAnimation = false;
+                viewerInstanceRef.current.dispose();
                 viewerInstanceRef.current = null;
             }
             if (displayInstanceRef.current) {
+                displayInstanceRef.current.dispose();
                 displayInstanceRef.current = null;
             }
         };
-    }, [theme, treeWidth, glass, tools, up, control]);
+    }, [theme, treeWidth, tools, up, control, glass]);
 
-    // Render model data
-    if (viewerInstanceRef.current && modelData) {
-        // Parse the string into JSON first, then decode
-        let parsedData;
-        try {
-            // Remove the "D:" prefix that's always present
-            let jsonString = modelData;
-            if (modelData.startsWith("D:")) {
-                jsonString = modelData.substring(3); // Remove "D:"
+    // Handle python runtime pushes
+    useEffect(() => {
+        if (viewerInstanceRef.current && modelData) {
+            let parsedData;
+            try {
+                let jsonString = modelData;
+                if (jsonString.startsWith("D:")) {
+                    jsonString = jsonString.substring(2); 
+                }
+                if (!jsonString.startsWith("{")) {
+                    jsonString = "{" + jsonString;
+                }
+                parsedData = JSON.parse(jsonString);
+            } catch (error) {
+                console.error("Error parsing modelData JSON:", error);
+                return;
             }
-            jsonString = jsonString.replace(/^D:/, "");
-            jsonString = "{" + jsonString;
 
-            parsedData = JSON.parse(jsonString);
-        } catch (error) {
-            console.error("Error parsing modelData JSON:", error);
-            console.error("modelData:", modelData);
-            return;
+            let decodedData = parsedData;
+            if (parsedData.data && parsedData.data.instances) {
+                decode(decodedData);
+            }
+
+            // Sync the render options with our desired feature state
+            const viewerOptions = {
+                ...baseViewerOptions,
+                glass: glass,
+                measureTools: false,
+                explodeTool: true,
+                selectTool: false,
+                zscaleTool: true,
+                zebraTool: true,
+                tools: true,
+                up: up,
+                control: control,
+            };
+
+            try {
+                viewerInstanceRef.current.clear();
+                viewerInstanceRef.current.render(
+                    decodedData.data.shapes,
+                    renderOptions,
+                    viewerOptions,
+                );
+            } catch (error) {
+                console.error("Error rendering model:", error);
+            }
         }
-
-        // Decode the model data
-        let decodedData = parsedData;
-        if (parsedData.data && parsedData.data.instances) {
-            decode(decodedData);
-        }
-
-        const viewerOptions = {
-            ...baseViewerOptions,
-            tools: tools,
-            glass: glass,
-            up: up,
-            control: control,
-        };
-
-        try {
-            viewerInstanceRef.current.clear();
-            viewerInstanceRef.current.render(
-                decodedData.data.shapes,
-                renderOptions,
-                viewerOptions,
-            );
-            console.log("Model rendered successfully");
-        } catch (error) {
-            console.error("Error rendering model:", error);
-        }
-    }
+    }, [modelData, up, control, glass]);
 
     return (
         <Box // Viewer container
             ref={viewerRef}
-            sx={{
-                overflow: "hidden",
-                width: "100%",
-                height: "100%",
-            }}
+            // 🚨 minWidth: 0 and minHeight: 0 prevents the Viewer container from blowing out 
+            // the flex layout when the three-cad-viewer internal pixel sizes run wide.
+            sx={{ overflow: "hidden", width: "100%", height: "100%", minWidth: 0, minHeight: 0 }}
         />
     );
 }
