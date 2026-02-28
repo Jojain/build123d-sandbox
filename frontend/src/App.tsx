@@ -95,6 +95,9 @@ function App() {
                     width: `${100 - leftPanelWidth}%`,
                     height: "100%",
                     flexShrink: 0,
+                    position: "relative", 
+                    overflow: "hidden", 
+                    minWidth: 0,
                 }}
             >
                 <Viewer modelData={modelData} />
