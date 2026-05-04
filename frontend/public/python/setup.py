@@ -35,6 +35,21 @@ micropip.add_mock_package("ipykernel", "6.29.5", modules={"ipykernel": ""})
 micropip.add_mock_package("flask", "3.0.0", modules={"flask": ""})
 micropip.add_mock_package("flask_sock", "0.7.0", modules={"flask_sock": ""})
 
+
+# 5. Mock psutil (safely stubs the Process class used by ipython's terminal checks)
+micropip.add_mock_package(
+    "psutil",
+    "7.2.2",
+    modules={
+        "psutil": (
+            "class Process:\n"
+            "    def __init__(self, *args, **kwargs): pass\n"
+            "    def parent(self): return None\n"
+            "    def name(self): return ''\n"
+        )
+    },
+)
+
 print("Installing core dependencies (using upstream ocp_vscode)...")
 # Install standard upstream packages instead of the custom fork
 await micropip.install(["lib3mf", "ssl", "ocp_vscode==3.1.2", "build123d", "sqlite3"])
