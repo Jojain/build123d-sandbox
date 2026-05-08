@@ -12,9 +12,8 @@ import { updateUrlWithCode, compressCode } from "../utils/urlCodec.ts";
 import Toast from "./Toast.tsx";
 import ShareIcon from "@mui/icons-material/Share";
 import DownloadIcon from "@mui/icons-material/Download";
-import { useUrlCode } from "../utils/useUrlCode.ts";
 
-const defaultCode = `from ocp_vscode import show
+export const defaultCode = `from ocp_vscode import show
 from build123d import *
 
 # Create a shape
@@ -28,12 +27,13 @@ show(b)
 __EXPORT__ = b`;
 
 function Editor(props: {
+    code: string;
+    setCode: (code: string) => void;
+    isRunning: boolean;
     isReady: boolean;
     runCode: (code: string) => Promise<void>;
     downloadExport: (format: string) => Promise<boolean>;
 }) {
-    const [code, setCode] = useUrlCode(defaultCode);
-    const [isRunning, setIsRunning] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [exportFormat, setExportFormat] = useState("BREP");
     const [toastMessage, setToastMessage] = useState(
@@ -41,11 +41,9 @@ function Editor(props: {
     );
 
     async function handleRunClick() {
-        if (!props.isReady || isRunning) return;
+        if (!props.isReady || props.isRunning) return;
 
-        setIsRunning(true);
-        await props.runCode(code);
-        setIsRunning(false);
+        await props.runCode(props.code);
     }
 
     async function handleDownloadClick() {
@@ -61,7 +59,7 @@ function Editor(props: {
     };
 
     function handleShareClick() {
-        const compressedCode = compressCode(code);
+        const compressedCode = compressCode(props.code);
         const testUrl = new URL(window.location.href);
         testUrl.searchParams.set("code", compressedCode);
 
@@ -74,7 +72,7 @@ function Editor(props: {
             return;
         }
 
-        updateUrlWithCode(code);
+        updateUrlWithCode(props.code);
         navigator.clipboard
             .writeText(window.location.href)
             .then(() => {
@@ -90,18 +88,25 @@ function Editor(props: {
         <>
             <Box
                 sx={{
-                    p: 2,
+                    p: { xs: 1, sm: 2 },
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
                     overflow: "hidden",
                 }}
             >
-                <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: { xs: 1, sm: 2 },
+                        mb: { xs: 1, sm: 2 },
+                        flexWrap: { xs: "wrap", sm: "nowrap" },
+                    }}
+                >
                     {!props.isReady ? (
                         <Box
                             sx={{
-                                flex: 1,
+                                flex: { xs: "1 1 100%", sm: 1 },
                                 height: 40,
                                 display: "flex",
                                 alignItems: "center",
@@ -133,9 +138,9 @@ function Editor(props: {
                             variant="contained"
                             color="primary"
                             onClick={handleRunClick}
-                            disabled={isRunning}
+                            disabled={props.isRunning}
                             sx={{
-                                flex: 1,
+                                flex: { xs: "1 1 100%", sm: 1 },
                                 height: 40,
                                 fontWeight: "bold",
                                 textTransform: "none",
@@ -145,12 +150,21 @@ function Editor(props: {
                                 },
                             }}
                         >
-                            {isRunning ? "Running..." : "Run Code"}
+                            {props.isRunning ? "Running..." : "Run Code"}
                         </Button>
                     )}
 
-                    <Box sx={{ display: "flex", gap: 0, bgcolor: "white", borderRadius: 1 }}>
-                         <FormControl size="small" sx={{ minWidth: 80 }}>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            gap: 0,
+                            bgcolor: "white",
+                            borderRadius: 1,
+                            flex: { xs: "1 1 auto", sm: "0 0 auto" },
+                            minWidth: 0,
+                        }}
+                    >
+                         <FormControl size="small" sx={{ minWidth: 80, flexShrink: 0 }}>
                             <Select
                                 value={exportFormat}
                                 onChange={handleFormatChange}
@@ -177,7 +191,8 @@ function Editor(props: {
                             endIcon={<DownloadIcon />}
                             disabled={!props.isReady}
                             sx={{
-                                minWidth: 100,
+                                minWidth: { xs: 0, sm: 100 },
+                                flex: { xs: 1, sm: "0 0 auto" },
                                 height: 40,
                                 fontWeight: "bold",
                                 textTransform: "none",
@@ -199,7 +214,8 @@ function Editor(props: {
                         onClick={handleShareClick}
                         endIcon={<ShareIcon />}
                         sx={{
-                            minWidth: 100,
+                            minWidth: { xs: 0, sm: 100 },
+                            flex: { xs: "1 1 96px", sm: "0 0 auto" },
                             height: 40,
                             fontWeight: "bold",
                             textTransform: "none",
@@ -218,8 +234,8 @@ function Editor(props: {
                         height="100%"
                         language="python"
                         theme="vs-dark"
-                        value={code}
-                        onChange={(value) => setCode(value || "")}
+                        value={props.code}
+                        onChange={(value) => props.setCode(value || "")}
                         options={{
                             minimap: { enabled: false },
                             fontSize: 14,
