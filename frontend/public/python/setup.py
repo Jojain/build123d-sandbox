@@ -60,7 +60,7 @@ await micropip.install(
         "lib3mf-OCP.wasm==2.5.0.post202605200051",
         "ssl",
         "ocp_vscode==3.1.2",
-        "build123d==0.11.0",  # NOTE: update necessary pins
+        "build123d==0.11.1",  # NOTE: update necessary pins
         "sqlite3",
     ],
     keep_going=True,
