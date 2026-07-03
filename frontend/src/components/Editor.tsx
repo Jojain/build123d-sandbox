@@ -176,12 +176,12 @@ function Editor(props: {
                                     borderBottomRightRadius: 0,
                                 }}
                             >
-                                <MenuItem value="BREP">BREP</MenuItem>
-                                <MenuItem value="STL">STL</MenuItem>
                                 <MenuItem value="STEP">STEP</MenuItem>
+                                <MenuItem value="STL">STL</MenuItem>
+                                <MenuItem value="3MF">3MF</MenuItem>
                                 <MenuItem value="SVG">SVG</MenuItem>
                                 <MenuItem value="DXF">DXF</MenuItem>
-                                <MenuItem value="3MF">3MF</MenuItem>
+                                <MenuItem value="BREP">BREP</MenuItem>
                             </Select>
                         </FormControl>
                         <Button
