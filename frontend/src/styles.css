@@ -8,4 +8,27 @@ html, body, #root {
   height: 100%;
   width: 100%;
   overflow: hidden;
-} 
+}
+
+body {
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+/* Keep the embedded CAD viewer on the same surface as the editor. */
+[data-theme="light"] {
+  --tcv-theme-blue: #7c3aed;
+  --tcv-bg-color: #f4f6fa;
+  --tcv-bg-overlay-color: rgba(244, 246, 250, 0.82);
+  --tcv-bg-highlight-color: #e2e5ed;
+  --tcv-bg-pressed-color: #dfe3ec;
+  --tcv-bg-tooltip-color: #ece7fb;
+}
+
+[data-theme="dark"] {
+  --tcv-theme-blue: #a78bfa;
+  --tcv-bg-color: #151b26;
+  --tcv-bg-overlay-color: rgba(21, 27, 38, 0.86);
+  --tcv-bg-highlight-color: #2b3444;
+  --tcv-bg-pressed-color: #303b4d;
+  --tcv-bg-tooltip-color: #2b2443;
+}

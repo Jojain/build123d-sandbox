@@ -5,6 +5,7 @@ import DraggableSeparator from "../DraggableSeparator.tsx";
 import Editor from "../Editor.tsx";
 import PythonOutput from "../PythonOutput.tsx";
 import Viewer from "../Viewer.tsx";
+import type { ThemeMode } from "../../theme.ts";
 
 interface DesktopLayoutProps {
     modelData?: string;
@@ -16,6 +17,8 @@ interface DesktopLayoutProps {
     setCode: (code: string) => void;
     runCode: (code: string) => Promise<void>;
     downloadExport: (format: string) => Promise<boolean>;
+    theme: ThemeMode;
+    onToggleMode: () => void;
 }
 
 function DesktopLayout(props: DesktopLayoutProps) {
@@ -67,6 +70,8 @@ function DesktopLayout(props: DesktopLayoutProps) {
                         isReady={props.isReady}
                         runCode={props.runCode}
                         downloadExport={props.downloadExport}
+                        theme={props.theme}
+                        onToggleMode={props.onToggleMode}
                     />
                 </Box>
 
@@ -99,7 +104,6 @@ function DesktopLayout(props: DesktopLayoutProps) {
                 minPercentage={20}
                 maxPercentage={80}
                 orientation="horizontal"
-                
             />
 
             <Box
@@ -107,12 +111,12 @@ function DesktopLayout(props: DesktopLayoutProps) {
                     width: `${100 - leftPanelWidth}%`,
                     height: "100%",
                     flexShrink: 0,
-                    position: "relative", 
-                    overflow: "hidden", 
+                    position: "relative",
+                    overflow: "hidden",
                     minWidth: 0,
                 }}
             >
-                <Viewer modelData={props.modelData} />
+                <Viewer modelData={props.modelData} theme={props.theme} />
             </Box>
         </Box>
     );

@@ -6,9 +6,28 @@ import useResizeObserver from "../utils/useResizeObserver";
 
 // Helper functions for decoding model data
 const MAP_HEX = {
-    0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9,
-    a: 10, b: 11, c: 12, d: 13, e: 14, f: 15,
-    A: 10, B: 11, C: 12, D: 13, E: 14, F: 15,
+    0: 0,
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 5,
+    6: 6,
+    7: 7,
+    8: 8,
+    9: 9,
+    a: 10,
+    b: 11,
+    c: 12,
+    d: 13,
+    e: 14,
+    f: 15,
+    A: 10,
+    B: 11,
+    C: 12,
+    D: 13,
+    E: 14,
+    F: 15,
 };
 
 function fromHex(hexString: string) {
@@ -76,14 +95,20 @@ function decode(data: any) {
                 if (type === "shapes") {
                     if (obj.shape.ref === undefined) {
                         obj.shape.vertices = convert(obj.shape.vertices);
-                        obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
+                        obj.shape.obj_vertices = convert(
+                            obj.shape.obj_vertices,
+                        );
                         obj.shape.normals = convert(obj.shape.normals);
                         obj.shape.edge_types = convert(obj.shape.edge_types);
                         obj.shape.face_types = convert(obj.shape.face_types);
                         obj.shape.triangles = convert(obj.shape.triangles);
-                        obj.shape.triangles_per_face = convert(obj.shape.triangles_per_face);
+                        obj.shape.triangles_per_face = convert(
+                            obj.shape.triangles_per_face,
+                        );
                         obj.shape.edges = convert(obj.shape.edges);
-                        obj.shape.segments_per_edge = convert(obj.shape.segments_per_edge);
+                        obj.shape.segments_per_edge = convert(
+                            obj.shape.segments_per_edge,
+                        );
                     } else {
                         const ind = obj.shape.ref;
                         if (ind !== undefined) {
@@ -92,7 +117,9 @@ function decode(data: any) {
                     }
                 } else if (type === "edges") {
                     obj.shape.edges = convert(obj.shape.edges);
-                    obj.shape.segments_per_edge = convert(obj.shape.segments_per_edge);
+                    obj.shape.segments_per_edge = convert(
+                        obj.shape.segments_per_edge,
+                    );
                     obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                 } else {
                     obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
@@ -119,18 +146,20 @@ function decode(data: any) {
     data.data.instances = [];
 }
 
-const renderOptions = {
-    ambientIntensity: 1.0,
-    directIntensity: 1.1,
-    metalness: 0.3,
-    roughness: 0.65,
-    edgeColor: 0x707070,
-    defaultOpacity: 0.5,
-    normalLen: 0,
-    angularTolerance: 0.2,
-    deviation: 0.1,
-    defaultColor: "#e8b024"
-};
+function getRenderOptions(theme: "light" | "dark") {
+    return {
+        ambientIntensity: 1.0,
+        directIntensity: 1.1,
+        metalness: 0.3,
+        roughness: 0.65,
+        edgeColor: theme === "dark" ? 0xaab7ca : 0x536176,
+        defaultOpacity: 0.5,
+        normalLen: 0,
+        angularTolerance: 0.2,
+        deviation: 0.1,
+        defaultColor: theme === "dark" ? "#2dd4bf" : "#0f766e",
+    };
+}
 
 const baseViewerOptions = {
     axes: true,
@@ -178,23 +207,33 @@ function Viewer(props: ViewerProps) {
         tools = true,
         up = "Z",
         control = "trackball",
-        glass = true
+        glass = true,
     } = props;
+    const renderOptions = getRenderOptions(theme);
 
-    const onResize = useCallback((size: { width: number; height: number}) => {
-        if (viewerInstanceRef.current) {
-            const width = glass ? size.width - 20 : Math.max(10, size.width - treeWidth);
-            const height = size.height - 55; 
-            viewerInstanceRef.current.resizeCadView(width, treeWidth, height, glass);
-        }
-    }, [treeWidth, glass]);
+    const onResize = useCallback(
+        (size: { width: number; height: number }) => {
+            if (viewerInstanceRef.current) {
+                const width = glass
+                    ? size.width - 20
+                    : Math.max(10, size.width - treeWidth);
+                const height = size.height - 55;
+                viewerInstanceRef.current.resizeCadView(
+                    width,
+                    treeWidth,
+                    height,
+                    glass,
+                );
+            }
+        },
+        [treeWidth, glass],
+    );
 
     const [viewerRef] = useResizeObserver(onResize);
 
     // Initialize viewer with actual container size
     useEffect(() => {
         if (viewerRef.current && !viewerInstanceRef.current) {
-            
             const combinedOptions: any = {
                 // Render & Viewer Options
                 ...baseViewerOptions,
@@ -213,17 +252,17 @@ function Viewer(props: ViewerProps) {
                     shift: "shiftKey",
                     ctrl: "ctrlKey",
                     meta: "metaKey",
-                    alt: "altKey"
+                    alt: "altKey",
                 },
                 newTreeBehavior: true,
                 measurementDebug: false,
-                
+
                 glass: glass,
                 measureTools: false,
                 explodeTool: false,
                 selectTool: false,
                 zscaleTool: false,
-                zebraTool: true, 
+                zebraTool: true,
             };
 
             // Create display
@@ -232,7 +271,7 @@ function Viewer(props: ViewerProps) {
                 combinedOptions,
             );
 
-            // Pass the exact same combined configuration to the Viewer 
+            // Pass the exact same combined configuration to the Viewer
             viewerInstanceRef.current = new TCV.Viewer(
                 displayInstanceRef.current,
                 combinedOptions,
@@ -240,7 +279,7 @@ function Viewer(props: ViewerProps) {
             );
 
             // Force layout styles to match
-            displayInstanceRef.current.glassMode(glass); 
+            displayInstanceRef.current.glassMode(glass);
             displayInstanceRef.current.showTools(tools);
             displayInstanceRef.current.setTheme(theme);
         }
@@ -257,7 +296,15 @@ function Viewer(props: ViewerProps) {
                 displayInstanceRef.current = null;
             }
         };
-    }, [theme, treeWidth, tools, up, control, glass]);
+    }, [treeWidth, tools, up, control, glass]);
+
+    // Theme changes only update the existing viewer instance. Recreating the
+    // viewer here would reset its internal layout and resize the viewport.
+    useEffect(() => {
+        if (displayInstanceRef.current) {
+            displayInstanceRef.current.setTheme(theme);
+        }
+    }, [theme]);
 
     // Handle python runtime pushes
     useEffect(() => {
@@ -266,7 +313,7 @@ function Viewer(props: ViewerProps) {
             try {
                 let jsonString = modelData;
                 if (jsonString.startsWith("D:")) {
-                    jsonString = jsonString.substring(2); 
+                    jsonString = jsonString.substring(2);
                 }
                 if (!jsonString.startsWith("{")) {
                     jsonString = "{" + jsonString;
@@ -294,6 +341,7 @@ function Viewer(props: ViewerProps) {
                 tools: true,
                 up: up,
                 control: control,
+                theme: theme,
             };
 
             try {
@@ -312,9 +360,15 @@ function Viewer(props: ViewerProps) {
     return (
         <Box // Viewer container
             ref={viewerRef}
-            // 🚨 minWidth: 0 and minHeight: 0 prevents the Viewer container from blowing out 
+            // 🚨 minWidth: 0 and minHeight: 0 prevents the Viewer container from blowing out
             // the flex layout when the three-cad-viewer internal pixel sizes run wide.
-            sx={{ overflow: "hidden", width: "100%", height: "100%", minWidth: 0, minHeight: 0 }}
+            sx={{
+                overflow: "hidden",
+                width: "100%",
+                height: "100%",
+                minWidth: 0,
+                minHeight: 0,
+            }}
         />
     );
 }

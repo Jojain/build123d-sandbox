@@ -2,6 +2,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
+import { useTheme } from "@mui/material/styles";
 
 interface PythonOutputProps {
     stdout: string;
@@ -16,13 +17,13 @@ interface PythonOutputProps {
 }
 
 function PythonOutput(props: PythonOutputProps) {
-    // Default colors
+    const theme = useTheme();
     const {
-        promptColor = "#87CEEB", // Light blue for prompt
-        stdoutColor = "#ffffff", // White for stdout
-        stderrColor = "#ff6b6b", // Red for stderr
-        runningColor = "#4CAF50", // Green for running status
-        placeholderColor = "#888", // Gray for placeholder
+        promptColor = theme.palette.primary.main,
+        stdoutColor = theme.palette.text.primary,
+        stderrColor = theme.palette.error.main,
+        runningColor = theme.palette.success.main,
+        placeholderColor = theme.palette.text.secondary,
     } = props;
 
     // Function to render text with colored prompts
@@ -69,8 +70,8 @@ function PythonOutput(props: PythonOutputProps) {
                     flex: 1,
                     minHeight: 0,
                     overflow: "auto",
-                    backgroundColor: "#1e1e1e",
-                    color: "#ffffff",
+                    backgroundColor: theme.palette.mode === "dark" ? "#0f1520" : "#edf1f7",
+                    color: "text.primary",
                     fontFamily: "monospace",
                     fontSize: 14,
                     p: 2,
@@ -79,14 +80,14 @@ function PythonOutput(props: PythonOutputProps) {
                         height: 8,
                     },
                     "&::-webkit-scrollbar-track": {
-                        backgroundColor: "#2d2d2d",
+                        backgroundColor: "action.hover",
                     },
                     "&::-webkit-scrollbar-thumb": {
-                        backgroundColor: "#555",
+                        backgroundColor: "divider",
                         borderRadius: 4,
                     },
                     "&::-webkit-scrollbar-thumb:hover": {
-                        backgroundColor: "#777",
+                        backgroundColor: "text.secondary",
                     },
                 }}
             >

@@ -12,6 +12,8 @@ import { updateUrlWithCode, compressCode } from "../utils/urlCodec.ts";
 import Toast from "./Toast.tsx";
 import ShareIcon from "@mui/icons-material/Share";
 import DownloadIcon from "@mui/icons-material/Download";
+import type { ThemeMode } from "../theme.ts";
+import ThemeToggle from "./ThemeToggle.tsx";
 
 export const defaultCode = `from ocp_vscode import show
 from build123d import *
@@ -33,6 +35,8 @@ function Editor(props: {
     isReady: boolean;
     runCode: (code: string) => Promise<void>;
     downloadExport: (format: string) => Promise<boolean>;
+    theme: ThemeMode;
+    onToggleMode: () => void;
 }) {
     const [showToast, setShowToast] = useState(false);
     const [exportFormat, setExportFormat] = useState("BREP");
@@ -49,7 +53,9 @@ function Editor(props: {
     async function handleDownloadClick() {
         const success = await props.downloadExport(exportFormat);
         if (!success) {
-            setToastMessage("Export failed. Ensure '__EXPORT__' variable is set and you have clicked 'Run Code'.");
+            setToastMessage(
+                "Export failed. Ensure '__EXPORT__' variable is set and you have clicked 'Run Code'.",
+            );
             setShowToast(true);
         }
     }
@@ -103,6 +109,10 @@ function Editor(props: {
                         flexWrap: { xs: "wrap", sm: "nowrap" },
                     }}
                 >
+                    <ThemeToggle
+                        mode={props.theme}
+                        onToggle={props.onToggleMode}
+                    />
                     {!props.isReady ? (
                         <Box
                             sx={{
@@ -158,20 +168,23 @@ function Editor(props: {
                         sx={{
                             display: "flex",
                             gap: 0,
-                            bgcolor: "white",
+                            bgcolor: "background.paper",
                             borderRadius: 1,
                             flex: { xs: "1 1 auto", sm: "0 0 auto" },
                             minWidth: 0,
                         }}
                     >
-                         <FormControl size="small" sx={{ minWidth: 80, flexShrink: 0 }}>
+                        <FormControl
+                            size="small"
+                            sx={{ minWidth: 80, flexShrink: 0 }}
+                        >
                             <Select
                                 value={exportFormat}
                                 onChange={handleFormatChange}
                                 displayEmpty
-                                inputProps={{ 'aria-label': 'Export Format' }}
-                                sx={{ 
-                                    height: 40, 
+                                inputProps={{ "aria-label": "Export Format" }}
+                                sx={{
+                                    height: 40,
                                     borderTopRightRadius: 0,
                                     borderBottomRightRadius: 0,
                                 }}
@@ -233,7 +246,7 @@ function Editor(props: {
                     <MonacoEditor
                         height="100%"
                         language="python"
-                        theme="vs-dark"
+                        theme={props.theme === "dark" ? "vs-dark" : "light"}
                         value={props.code}
                         onChange={(value) => props.setCode(value || "")}
                         options={{

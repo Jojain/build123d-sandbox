@@ -12,6 +12,8 @@ import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import Editor from "../Editor.tsx";
 import PythonOutput from "../PythonOutput.tsx";
 import Viewer from "../Viewer.tsx";
+import type { ThemeMode } from "../../theme.ts";
+import ThemeToggle from "../ThemeToggle.tsx";
 
 type MobileView = "viewer" | "code" | "output";
 type MobileAction = MobileView | "run";
@@ -26,6 +28,8 @@ interface MobileLayoutProps {
     setCode: (code: string) => void;
     runCode: (code: string) => Promise<void>;
     downloadExport: (format: string) => Promise<boolean>;
+    theme: ThemeMode;
+    onToggleMode: () => void;
 }
 
 function MobileLayout(props: MobileLayoutProps) {
@@ -43,8 +47,15 @@ function MobileLayout(props: MobileLayoutProps) {
             }}
         >
             <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+                {mobileView !== "code" && (
+                    <ThemeToggle
+                        mode={props.theme}
+                        onToggle={props.onToggleMode}
+                        floating
+                    />
+                )}
                 {mobileView === "viewer" && (
-                    <Viewer modelData={props.modelData} treeWidth={0} />
+                    <Viewer modelData={props.modelData} treeWidth={0} theme={props.theme} />
                 )}
 
                 {mobileView === "code" && (
@@ -55,6 +66,8 @@ function MobileLayout(props: MobileLayoutProps) {
                         isReady={props.isReady}
                         runCode={props.runCode}
                         downloadExport={props.downloadExport}
+                        theme={props.theme}
+                        onToggleMode={props.onToggleMode}
                     />
                 )}
 

@@ -73,7 +73,7 @@ function DraggableSeparator({
             sx={{
                 width: separatorWidth,
                 height: separatorHeight,
-                backgroundColor: isDragging ? "primary.main" : "grey.300",
+                backgroundColor: isDragging ? "primary.main" : "divider",
                 cursor: cursor,
                 display: "flex",
                 alignItems: "center",
@@ -85,7 +85,9 @@ function DraggableSeparator({
                     content: '""',
                     width: indicatorWidth,
                     height: indicatorHeight,
-                    backgroundColor: isDragging ? "white" : "grey.500",
+                    backgroundColor: isDragging
+                        ? "primary.contrastText"
+                        : "text.secondary",
                     borderRadius: "1px",
                 },
                 userSelect: "none",
