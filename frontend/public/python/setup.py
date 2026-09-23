@@ -78,31 +78,27 @@ print("Installing OCP WASM wheels (cadquery-ocp-novtk, lib3mf)...")
 # build123d 0.13.0 depends on "cadquery-ocp-novtk" and "lib3mf", neither of
 # which ship native wasm wheels under their real PyPI names. yeicor's
 # OCP.wasm project publishes wasm-compatible builds of both under "-OCP.wasm"
-# suffixed names; install those, then mock the real names so build123d's own
-# dependency resolution is satisfied without micropip trying (and failing)
-# to fetch the native-only packages.
-_OCP_WASM_PACKAGES = {
-    "cadquery-ocp-novtk": "cadquery-ocp-novtk-OCP.wasm==8.0.1.0.post202609202030",
-    "lib3mf": "lib3mf-OCP.wasm==2.5.0.post202609201851",
-}
-await micropip.install(list(_OCP_WASM_PACKAGES.values()))
+# suffixed names; install those, then mock the real names (metadata only, via
+# modules={}) so build123d's own dependency resolution is satisfied without
+# micropip trying (and failing) to fetch the native-only packages, and
+# without shadowing the real "lib3mf" import with an empty stub module.
+await micropip.install(
+    [
+        "cadquery-ocp-novtk-OCP.wasm==8.0.1.0.post202609202030",
+        "lib3mf-OCP.wasm==2.5.0.post202609201851",
+    ]
+)
 
 import importlib.metadata
 
 novtk_version = importlib.metadata.version("cadquery-ocp-novtk-OCP.wasm")
 lib3mf_version = importlib.metadata.version("lib3mf-OCP.wasm")
 
-micropip.add_mock_package("cadquery-ocp-novtk", novtk_version)
+micropip.add_mock_package("cadquery-ocp-novtk", novtk_version, modules={})
 # The VTK-enabled variant shares the same OCP module, mock it too in case
 # anything still depends on it.
-micropip.add_mock_package("cadquery-ocp", novtk_version)
-# "lib3mf" mock: metadata-only, so the resolver treats build123d's
-# "lib3mf>=2.4.1" requirement as satisfied without re-fetching a native-only
-# wheel. IMPORTANT: this also registers an *importable* empty stub module
-# named "lib3mf" that takes priority over the real one we just installed
-# (micropip mock modules sit ahead of site-packages on sys.meta_path), so it
-# must be removed again below before anything does `import lib3mf` for real.
-micropip.add_mock_package("lib3mf", lib3mf_version)
+micropip.add_mock_package("cadquery-ocp", novtk_version, modules={})
+micropip.add_mock_package("lib3mf", lib3mf_version, modules={})
 
 print("Installing core dependencies (using upstream ocp_vscode)...")
 # Install standard upstream packages instead of the custom fork
@@ -111,10 +107,6 @@ print("Installing core dependencies (using upstream ocp_vscode)...")
 await micropip.install(["ocp_vscode==4.1.0", "build123d==0.13.0"])
 # NOTE: to update ocp_vscode one must also update the required three-cad-viewer version
 # e.g. npm install three-cad-viewer@4.1.2 at time of writing
-
-# Dependency resolution is done; drop the "lib3mf" stub so real imports of it
-# (e.g. build123d.mesher's `from lib3mf import Lib3MF`) hit the real wheel.
-micropip.remove_mock_package("lib3mf")
 
 print("Applying Pyodide monkey-patches to ocp_vscode...")
 # ocp_vscode>=4 moved its transport into the ocp_viewer_core package: the

@@ -128,19 +128,25 @@ export class PythonRuntime {
                     if format_type == "BREP":
                         b3d.export_brep(shape, bio)
                     elif format_type == "STL":
-                        # TODO: add lib3mf STL export workaround via Mesher (shape, bio)
-                        pass
+                        # lib3mf STL export workaround via Mesher (shape, bio)
+                        exporter = b3d.Mesher()
+                        exporter.add_shape(shape)
+                        exporter.write_stream(bio, "stl")
                     elif format_type == "STEP":
                         b3d.export_step(shape, bio)
                     elif format_type == "SVG":
-                        # TODO: add SVG export via ExportSVG (shape, bio)
-                        pass
+                        exporter = b3d.ExportSVG()
+                        exporter.add_shape(shape)
+                        exporter.write(bio)
                     elif format_type == "DXF":
-                        # TODO: add DXF export via ExportDXF (shape, bio)
-                        pass
+                        exporter = b3d.ExportDXF()
+                        exporter.add_shape(shape)
+                        exporter.write(bio)
                     elif format_type == "3MF":
-                        # TODO: add lib3mf 3MF export via Mesher (shape, bio)
-                        pass
+                        # lib3mf 3MF export via Mesher (shape, bio)
+                        exporter = b3d.Mesher()
+                        exporter.add_shape(shape)
+                        exporter.write_stream(bio, "3mf")
                     else:
                         print(f"Unknown format: {format_type}")
                         return None
