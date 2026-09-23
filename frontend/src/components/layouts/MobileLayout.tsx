@@ -55,7 +55,11 @@ function MobileLayout(props: MobileLayoutProps) {
                     />
                 )}
                 {mobileView === "viewer" && (
-                    <Viewer modelData={props.modelData} treeWidth={0} theme={props.theme} />
+                    <Viewer
+                        modelData={props.modelData}
+                        treeWidth={0}
+                        theme={props.theme}
+                    />
                 )}
 
                 {mobileView === "code" && (
