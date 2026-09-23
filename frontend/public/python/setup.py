@@ -101,6 +101,10 @@ micropip.add_mock_package("cadquery-ocp", novtk_version, modules={})
 micropip.add_mock_package("lib3mf", lib3mf_version, modules={})
 
 print("Installing core dependencies (using upstream ocp_vscode)...")
+# Pin ahead of install: micropip resolves requirements via asyncio.gather
+# without backtracking, so build123d's "webcolors~=24.8.0" can lose a race
+# against ocp-tessellate's looser "webcolors>=24.8.0" and hard-fail.
+await micropip.install(["webcolors==24.8.0"])
 # Install standard upstream packages instead of the custom fork
 # NOTE: pyodide 314.x bundles "ssl" (as a stub) and "sqlite3" by default, so
 # they are no longer separately installable/needed via micropip.
